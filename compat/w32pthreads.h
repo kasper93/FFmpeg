@@ -44,6 +44,7 @@
 #include "libavutil/internal.h"
 #include "libavutil/mem.h"
 #include "libavutil/time.h"
+#include "libavutil/wchar_filename.h"
 
 typedef struct pthread_t {
     void *handle;
@@ -207,6 +208,35 @@ static inline int pthread_cond_signal(pthread_cond_t *cond)
 static inline int pthread_setcancelstate(int state, int *oldstate)
 {
     return 0;
+}
+
+static inline int win32_thread_setname(const char *name)
+{
+    typedef HRESULT (WINAPI *SetThreadDescriptionFn)(HANDLE, PCWSTR);
+    SetThreadDescriptionFn pSetThreadDescription;
+    HRESULT hr;
+    wchar_t *wname;
+
+#if !HAVE_UWP
+    HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+    if (!kernel32)
+        return AVERROR(ENOSYS);
+    pSetThreadDescription = (SetThreadDescriptionFn)
+        GetProcAddress(kernel32, "SetThreadDescription");
+    if (!pSetThreadDescription)
+        return AVERROR(ENOSYS);
+#else
+    WINBASEAPI HRESULT WINAPI
+    SetThreadDescription(HANDLE hThread, PCWSTR lpThreadDescription);
+    pSetThreadDescription = &SetThreadDescription;
+#endif
+
+    if (utf8towchar(name, &wname) < 0)
+        return AVERROR(ENOMEM);
+
+    hr = pSetThreadDescription(GetCurrentThread(), wname);
+    av_free(wname);
+    return SUCCEEDED(hr) ? 0 : AVERROR(EINVAL);
 }
 
 #endif /* COMPAT_W32PTHREADS_H */
