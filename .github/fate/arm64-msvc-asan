@@ -1,0 +1,9 @@
+slot=arm64-msvc-asan
+comment="VS2022 MSVC ARM64 (ASAN)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+arch=arm64
+extra_cflags="-fsanitize=address"
+extra_conf="--toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree"

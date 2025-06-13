@@ -1,0 +1,10 @@
+slot=arm64-clang-cl-msvc-shared
+comment="VS2022 Clang-CL ARM64 (shared)"
+build_only=yes
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+arch=arm64
+cc=clang-cl
+extra_conf="--cxx=clang-cl --toolchain=msvc --target-os=win64 --enable-shared --enable-w32threads --enable-version3 --enable-nonfree"

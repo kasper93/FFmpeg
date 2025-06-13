@@ -1,0 +1,131 @@
+name: fate
+
+on:
+  workflow_dispatch:
+
+jobs:
+  win32:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-2025, windows-11-arm]
+        arch: [amd64, arm64]
+        compiler: [clang-msvc, clang-cl-msvc, msvc]
+        asan: [false, true]
+        shared: [false, true]
+        exclude:
+          - arch: amd64
+            os: windows-11-arm
+          - arch: arm64
+            os: windows-2025
+          # Enable once aarch64-pc-windows-msvc/clang_rt.asan.lib is available on the runner
+          - arch: arm64
+            asan: true
+          - shared: true
+            asan: true
+    env:
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}
+      VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
+      MSYSTEM: MSYS
+      UBSAN_OPTIONS: print_stacktrace=1
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          path-type: inherit
+          update: true
+          install: >-
+            gzip
+            make
+            nasm
+            openssh
+            rsync
+            tar
+      - name: Disable autocrlf
+        shell: pwsh
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+      - name: Checkout FFmpeg
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # For fate version string
+          repository: ffmpeg/ffmpeg
+          path: .github/fate/src
+      - name: Checkout gas-preprocessor
+        if: ${{ matrix.compiler == 'msvc' || matrix.compiler == 'clang-cl-msvc' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ffmpeg/gas-preprocessor
+          path: gas-preprocessor
+      - name: Get time
+        id: get_time
+        run: |
+          "timestamp=$((Get-Date).Ticks)" >> $env:GITHUB_OUTPUT
+      - name: Cache fate samples
+        uses: actions/cache@v4
+        with:
+          path: .github/fate/samples
+          key: fate-samples-${{ steps.get_time.outputs.timestamp }}
+          restore-keys: fate-samples-
+      - name: Sync fate samples
+        shell: msys2 {0}
+        run: |
+          mkdir -p .github/fate/samples
+          rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
+      - name: Set up SSH
+        shell: msys2 {0}
+        env:
+          HOST: fate.ffmpeg.org
+          FINGERPRINT: "76:9f:68:32:04:1e:d5:d4:ec:47:3f:dc:fc:18:17:86"
+        run: |
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          ssh-keyscan -t ecdsa "$HOST" > "$HOME/.ssh/known_hosts"
+          SERVER_FINGERPRINT="$(ssh-keygen -E md5 -lf "$HOME/.ssh/known_hosts" | grep "$HOST" | awk '{gsub(/^MD5:/, "", $2); print $2}')"
+          if [ "$SERVER_FINGERPRINT" != "$FINGERPRINT" ]; then
+            echo "Fingerprint $SERVER_FINGERPRINT does not match expected $FINGERPRINT"
+            exit 1
+          fi
+          echo "${{ secrets.FATE_SSH_KEY }}" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+      - name: Build
+        id: build
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $PSNativeCommandUseErrorActionPreference = $true
+
+          # GHA images have polluted PATH, clean it up a bit
+          $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -ne 'C:\Program Files\LLVM\bin' -and `
+                                                             $_ -ne 'C:\Program Files\CMake\bin' -and `
+                                                             $_ -ne 'C:\Strawberry\c\bin' }) -join ';'
+          $env:PATH += ";$PWD\gas-preprocessor"
+
+          Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+
+          cd .github/fate/src
+          msys2 -ec "./tests/fate.sh ../${{ env.CONF }}"
+      - name: Print version
+        if: always()
+        run: |
+          cat .github/fate/version-${{ env.CONF }}
+      - name: Print report
+        if: always()
+        run: |
+          cat .github/fate/report
+      - name: Print configure.log
+        if: always()
+        run: |
+          cat .github/fate/configure.log
+      - name: Print compile.log
+        if: always()
+        run: |
+          cat .github/fate/compile.log
+      - name: Print test.log
+        if: always()
+        run: |
+          cat .github/fate/test.log

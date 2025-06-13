@@ -1,0 +1,9 @@
+slot=amd64-msvc-shared
+comment="VS2022 MSVC AMD64 (shared)"
+build_only=yes
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+arch=amd64
+extra_conf="--toolchain=msvc --target-os=win64 --enable-shared --enable-w32threads --enable-version3 --enable-nonfree"
