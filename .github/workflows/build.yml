@@ -1,0 +1,133 @@
+name: build
+
+on:
+    push:
+      branches:
+        - gha
+
+jobs:
+  win32:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+          include:
+          - os: windows-latest
+            arch: amd64
+            ar: llvm-ar
+            as: clang
+            cc: clang
+            cxx: clang++
+            ld: lld-link
+            nm: llvm-nm
+            strip: llvm-strip
+            windres: llvm-windres
+            # TODO: those flags shouldn't be needed
+            additional_args: "--extra-ldflags='msvcrt.lib oldnames.lib' --host_extralibs='' --toolchain=msvc"
+          - os: windows-latest
+            arch: amd64
+            additional_args: --toolchain=msvc
+          - os: windows-11-arm
+            arch: arm64
+            ar: llvm-ar
+            as: clang
+            cc: clang
+            cxx: clang++
+            ld: lld-link
+            nm: llvm-nm
+            strip: llvm-strip
+            windres: llvm-windres
+            # TODO: those flags shouldn't be needed
+            additional_args: "--extra-ldflags='msvcrt.lib oldnames.lib' --host_extralibs='' --toolchain=msvc"
+          - os: windows-11-arm
+            arch: arm64
+            additional_args: --toolchain=msvc
+    env:
+      VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
+      MSYSTEM: MSYS
+    steps:
+      - uses: msys2/setup-msys2@v2
+        with:
+          msystem: MSYS
+          path-type: inherit
+          update: true
+          install: >-
+            make
+            nasm
+            rsync
+      - name: Disable autocrlf
+        shell: pwsh
+        run: |
+          git config --global core.autocrlf false
+          git config --global core.eol lf
+      - uses: actions/checkout@v4
+      - name: Checkout gas-preprocessor
+        if: ${{ matrix.as == '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ffmpeg/gas-preprocessor
+          path: gas-preprocessor
+      - name: Build
+        id: build
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = "Stop"
+          $PSNativeCommandUseErrorActionPreference = $true
+
+          # GHA images have polluted PATH, clean it up a bit
+          $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -ne 'C:\Program Files\LLVM\bin' -and `
+                                                             $_ -ne 'C:\Program Files\CMake\bin' -and `
+                                                             $_ -ne 'C:\Strawberry\c\bin' }) -join ';'
+          $env:PATH += ";$PWD\gas-preprocessor"
+
+          Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+
+          $configure = @(
+              "../configure",
+              "--enable-gpl",
+              "--enable-version3",
+              "--enable-nonfree",
+              "--samples=../samples",
+              "--enable-memory-poisoning",
+              "--arch=${{ matrix.arch }}",
+              "--enable-w32threads"
+          )
+
+          $toolchain = @{
+              ar       = "${{ matrix.ar }}"
+              as       = "${{ matrix.as }}"
+              cc       = "${{ matrix.cc }}"
+              cxx      = "${{ matrix.cxx }}"
+              ld       = "${{ matrix.ld }}"
+              nm       = "${{ matrix.nm }}"
+              strip    = "${{ matrix.strip }}"
+              windres  = "${{ matrix.windres }}"
+          }
+          foreach ($key in $toolchain.Keys) {
+              $value = $toolchain[$key]
+              if ($value -and $value -ne '') {
+                  $configure += "--$key=$value"
+              }
+          }
+          $configure += "${{ matrix.additional_args }}"
+
+          mkdir build
+          cd build
+
+          $conf_cmd = $configure -join ' '
+          $build = @(
+              $conf_cmd,
+              "make -j``nproc``",
+              "make -j``nproc`` run-checkasm",
+              "make -j``nproc`` fate-rsync",
+              "make -j``nproc`` fate"
+          )
+
+          $cmd = $build -join ' && '
+          echo "$ $cmd"
+          msys2 -c $cmd
+      - name: Print config.log
+        if: always()
+        run: |
+          cat ./build/ffbuild/config.log
