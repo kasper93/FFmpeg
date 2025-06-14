@@ -4,6 +4,7 @@ on:
     push:
       branches:
         - gha
+        - gha2
 
 jobs:
   win32:

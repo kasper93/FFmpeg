@@ -9,5 +9,3 @@ vpath %.css  $(SRC_PATH)
 
 OBJS-resman +=                     \
     fftools/resources/resman.o     \
-    fftools/resources/graph.html.o \
-    fftools/resources/graph.css.o  \

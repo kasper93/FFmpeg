@@ -43,12 +43,6 @@ extern const unsigned int ff_graph_html_len;
 extern const unsigned char ff_graph_css_data[];
 extern const unsigned ff_graph_css_len;
 
-static const FFResourceDefinition resource_definitions[] = {
-    [FF_RESOURCE_GRAPH_CSS]   = { FF_RESOURCE_GRAPH_CSS,   "graph.css",   &ff_graph_css_data[0],   &ff_graph_css_len   },
-    [FF_RESOURCE_GRAPH_HTML]  = { FF_RESOURCE_GRAPH_HTML,  "graph.html",  &ff_graph_html_data[0],  &ff_graph_html_len  },
-};
-
-
 static const AVClass resman_class = {
     .class_name = "ResourceManager",
 };
@@ -129,68 +123,5 @@ void ff_resman_uninit(void)
 
 char *ff_resman_get_string(FFResourceId resource_id)
 {
-    ResourceManagerContext *ctx = &resman_ctx;
-    FFResourceDefinition resource_definition = { 0 };
-    AVDictionaryEntry *dic_entry;
-    char *res = NULL;
-
-    for (unsigned i = 0; i < FF_ARRAY_ELEMS(resource_definitions); ++i) {
-        FFResourceDefinition def = resource_definitions[i];
-        if (def.resource_id == resource_id) {
-            resource_definition = def;
-            break;
-        }
-    }
-
-    av_assert1(resource_definition.name);
-
-    ff_mutex_lock(&mutex);
-
-    dic_entry = av_dict_get(ctx->resource_dic, resource_definition.name, NULL, 0);
-
-    if (!dic_entry) {
-        int dict_ret;
-
-#if CONFIG_RESOURCE_COMPRESSION
-
-        char *out = NULL;
-        size_t out_len;
-
-        int ret = decompress_gzip(ctx, (uint8_t *)resource_definition.data, *resource_definition.data_len, &out, &out_len);
-
-        if (ret) {
-            av_log(ctx, AV_LOG_ERROR, "Unable to decompress the resource with ID %d\n", resource_id);
-            goto end;
-        }
-
-        dict_ret = av_dict_set(&ctx->resource_dic, resource_definition.name, out, 0);
-        if (dict_ret < 0) {
-            av_log(ctx, AV_LOG_ERROR, "Failed to store decompressed resource in dictionary: %d\n", dict_ret);
-            av_freep(&out);
-            goto end;
-        }
-
-        av_freep(&out);
-#else
-
-        dict_ret = av_dict_set(&ctx->resource_dic, resource_definition.name, (const char *)resource_definition.data, 0);
-        if (dict_ret < 0) {
-            av_log(ctx, AV_LOG_ERROR, "Failed to store resource in dictionary: %d\n", dict_ret);
-            goto end;
-        }
-
-#endif
-        dic_entry = av_dict_get(ctx->resource_dic, resource_definition.name, NULL, 0);
-
-        if (!dic_entry) {
-            av_log(ctx, AV_LOG_ERROR, "Failed to retrieve resource from dictionary after storing it\n");
-            goto end;
-        }
-    }
-
-    res = dic_entry->value;
-
-end:
-    ff_mutex_unlock(&mutex);
-    return res;
+    return NULL;
 }
