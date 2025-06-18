@@ -91,6 +91,7 @@ fate()(
 )
 
 clean(){
+    cat ${build}/ffbuild/config.log
     rm -rf ${build} ${inst}
 }
 
