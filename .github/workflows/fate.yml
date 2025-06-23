@@ -138,16 +138,25 @@ jobs:
         os: [ubuntu-24.04, ubuntu-24.04-arm]
         arch: [amd64, arm64]
         compiler: [clang]
-        asan: [true]
+        asan: [false, true]
         asm: [false, true]
+        msan: [false, true]
         shared: [false]
         exclude:
           - arch: amd64
             os: ubuntu-24.04-arm
           - arch: arm64
             os: ubuntu-24.04
+          - asan: false
+            msan: false
+          - msan: true
+            asan: true
+          - msan: true
+            arch: arm64
+          - msan: true
+            asm: true
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.asm && '-asm' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.asm && '-asm' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1
     steps:
       - uses: actions/checkout@v4
