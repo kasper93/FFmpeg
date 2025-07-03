@@ -28,7 +28,7 @@ jobs:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
       MSYSTEM: MSYS
-      UBSAN_OPTIONS: print_stacktrace=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - uses: msys2/setup-msys2@v2
         with:
@@ -157,7 +157,7 @@ jobs:
             asm: true
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.asm && '-asm' || '' }}
-      UBSAN_OPTIONS: print_stacktrace=1
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - uses: actions/checkout@v4
       - name: Checkout FFmpeg
