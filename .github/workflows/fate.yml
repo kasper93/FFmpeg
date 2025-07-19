@@ -60,6 +60,24 @@ jobs:
         with:
           repository: ffmpeg/gas-preprocessor
           path: gas-preprocessor
+      - name: Checkout zlib
+        uses: actions/checkout@v4
+        with:
+          repository: madler/zlib
+          # Switch to stable release when this is available https://github.com/madler/zlib/issues/787
+          ref: develop
+          path: zlib
+      - name: Build zlib
+        shell: pwsh
+        working-directory: zlib
+        run: |
+          Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
+          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+          cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}\install
+          ninja -C build install
+          # FFmpeg replaces -lz with zlib.lib for MSVC targets
+          cp -force ${{ runner.temp }}\install\lib\zs.lib ${{ runner.temp }}\install\lib\zlib.lib
+          cp -force ${{ runner.temp }}\install\lib\zs.lib ${{ runner.temp }}\install\lib\z.lib
       - name: Get time
         id: get_time
         run: |
@@ -108,7 +126,7 @@ jobs:
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
 
           cd .github/fate/src
-          msys2 -ec "./tests/fate.sh ../${{ env.CONF }}"
+          msys2 -ec 'PKG_CONFIG_PATH=`cygpath -a ''${{ runner.temp }}\install\lib\pkgconfig''` ./tests/fate.sh ../${{ env.CONF }}'
       - name: Print version
         if: always()
         run: |
