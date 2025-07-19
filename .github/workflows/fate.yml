@@ -193,6 +193,21 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y nasm clang llvm lld make pkgconf rsync
+      - name: Checkout zlib
+        if: matrix.msan
+        uses: actions/checkout@v4
+        with:
+          repository: madler/zlib
+          ref: develop
+          path: zlib
+      - name: Build zlib
+        if: matrix.msan
+        working-directory: zlib
+        run: |
+          cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=clang \
+                -DCMAKE_C_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer" \
+                -DZLIB_BUILD_TESTING=OFF -DZLIB_BUILD_SHARED=OFF
+          sudo ninja -C build install
       - name: Get time
         id: get_time
         run: echo "timestamp=`date +%s%N`" >> $GITHUB_OUTPUT
