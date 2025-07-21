@@ -14,6 +14,7 @@ jobs:
         compiler: [clang-msvc, clang-cl-msvc, msvc]
         asan: [false, true]
         shared: [false, true]
+        debug: [false, true]
         exclude:
           - arch: amd64
             os: windows-11-arm
@@ -24,8 +25,16 @@ jobs:
             asan: true
           - shared: true
             asan: true
+          - debug: true
+            shared: true
+          - debug: true
+            asan: true
+          - debug: true
+            compiler: clang-msvc
+          - debug: true
+            compiler: clang-cl-msvc
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
       MSYSTEM: MSYS
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
@@ -73,7 +82,8 @@ jobs:
         run: |
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
-          cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}\install
+          $crt = if (${{ matrix.debug }}) { "MultiThreadedDebug" } else { "MultiThreaded" }
+          cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}\install -DCMAKE_MSVC_RUNTIME_LIBRARY="$crt"
           ninja -C build install
           # FFmpeg replaces -lz with zlib.lib for MSVC targets
           cp -force ${{ runner.temp }}\install\lib\zs.lib ${{ runner.temp }}\install\lib\zlib.lib

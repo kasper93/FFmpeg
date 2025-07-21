@@ -7,4 +7,4 @@ samples="../samples"
 makeopts=-j`nproc`
 arch=arm64
 cc=clang-cl
-extra_conf="--cxx=clang-cl --toolchain=msvc --target-os=win64 --enable-shared --enable-w32threads --enable-version3 --enable-nonfree"
+extra_conf="--cxx=clang-cl --toolchain=msvc --disable-debug --target-os=win64 --enable-shared --enable-w32threads --enable-version3 --enable-nonfree"

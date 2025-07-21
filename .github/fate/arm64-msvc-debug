@@ -1,0 +1,9 @@
+slot=arm64-msvc-debug
+comment="VS2022 MSVC ARM64 (Debug)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+arch=arm64
+extra_cflags="-MTd"
+extra_conf="--toolchain=msvc --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree"
