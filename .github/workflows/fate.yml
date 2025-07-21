@@ -33,6 +33,7 @@ jobs:
             compiler: clang-msvc
           - debug: true
             compiler: clang-cl-msvc
+          - compiler: clang-msvc
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
