@@ -128,13 +128,14 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
 
           # GHA images have polluted PATH, clean it up a bit
-          $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -ne 'C:\Program Files\LLVM\bin' -and `
-                                                             $_ -ne 'C:\Program Files\CMake\bin' -and `
+          $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -ne 'C:\Program Files\CMake\bin' -and `
                                                              $_ -ne 'C:\Strawberry\c\bin' }) -join ';'
           $env:PATH += ";$PWD\gas-preprocessor"
 
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+
+          $env:PATH = 'C:\Program Files\LLVM\bin;' + $env:PATH
 
           cd .github/fate/src
           msys2 -ec 'PKG_CONFIG_PATH=`cygpath -a ''${{ runner.temp }}\install\lib\pkgconfig''` ./tests/fate.sh ../${{ env.CONF }}'
