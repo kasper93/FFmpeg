@@ -81,6 +81,8 @@ jobs:
         shell: pwsh
         working-directory: zlib
         run: |
+          # Workaround for https://github.com/madler/zlib/issues/787#issuecomment-3094568653
+          (Get-Content "zconf.h") -replace '#if HAVE_UNISTD_H-0', '#if defined(HAVE_UNISTD_H) && HAVE_UNISTD_H' | Set-Content "zconf.h"
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
           $crt = if (${{ matrix.debug }}) { "MultiThreadedDebug" } else { "MultiThreaded" }
