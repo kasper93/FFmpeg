@@ -1,0 +1,8 @@
+slot=amd64-msvc-assert
+comment="VS2022 MSVC AMD64 (Assert Level 2)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+arch=amd64
+extra_conf="--toolchain=msvc --disable-debug --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree --assert-level=2"

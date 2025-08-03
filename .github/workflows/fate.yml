@@ -15,6 +15,7 @@ jobs:
         asan: [false, true]
         shared: [false, true]
         debug: [false, true]
+        assert: [false, true]
         exclude:
           - arch: amd64
             os: windows-11-arm
@@ -34,8 +35,18 @@ jobs:
           - debug: true
             compiler: clang-cl-msvc
           - compiler: clang-msvc
+          - assert: true
+            compiler: clang-cl-msvc
+          - assert: true
+            compiler: clang-msvc
+          - assert: true
+            asan: true
+          - assert: true
+            shared: true
+          - assert: true
+            debug: true
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
       MSYSTEM: MSYS
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
