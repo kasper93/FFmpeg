@@ -215,20 +215,6 @@ jobs:
           curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
           echo "deb https://apt.llvm.org/noble/ llvm-toolchain-noble main" | sudo tee /etc/apt/sources.list.d/llvm.list
       - name: Install dependencies
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
-        run: |
-          sudo apt-get update
-          sudo apt-get remove -y clang* llvm* lld*
-          sudo apt-get autoremove -y
-          sudo apt-get install -y nasm clang-22 llvm-22 lld-22 make pkgconf rsync
-          # This is ugly, but hopefully temporary.
-          version=22
-          priority=1000
-          for tool in clang clang++ lld llvm-ar llvm-nm llvm-ranlib llvm-strip; do
-              sudo update-alternatives --verbose --install /usr/bin/$tool $tool /usr/bin/$tool-$version $priority
-          done
-      - name: Install dependencies
-        if: ${{ matrix.os != 'ubuntu-24.04' }}
         run: |
           sudo apt-get update
           sudo apt-get install -y nasm clang llvm lld make pkgconf rsync
