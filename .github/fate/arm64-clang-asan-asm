@@ -1,6 +1,7 @@
 slot=arm64-clang-asan-asm
 comment="Clang ASAN/UBSAN/ASM"
 fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
 repo="file://$PWD"
 samples="../samples"
 makeopts=-j`nproc`

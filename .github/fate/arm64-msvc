@@ -1,6 +1,7 @@
 slot=arm64-msvc
 comment="VS2022 MSVC ARM64"
 fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
 repo="file://$PWD"
 samples="../samples"
 makeopts=-j`nproc`

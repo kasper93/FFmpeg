@@ -2,6 +2,7 @@ slot=amd64-clang-cl-msvc-shared
 comment="VS2022 Clang-CL AMD64 (shared)"
 build_only=yes
 fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
 repo="file://$PWD"
 samples="../samples"
 makeopts=-j`nproc`
