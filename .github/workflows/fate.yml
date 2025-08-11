@@ -102,21 +102,28 @@ jobs:
           # FFmpeg replaces -lz with zlib.lib for MSVC targets
           cp -force ${{ runner.temp }}\install\lib\zs.lib ${{ runner.temp }}\install\lib\zlib.lib
           cp -force ${{ runner.temp }}\install\lib\zs.lib ${{ runner.temp }}\install\lib\z.lib
-      - name: Get time
-        id: get_time
-        run: |
-          "timestamp=$((Get-Date).Ticks)" >> $env:GITHUB_OUTPUT
-      - name: Cache fate samples
-        uses: actions/cache@v4
+      - name: Restore Cached FATE Samples
+        id: cache
+        uses: actions/cache/restore@v4
         with:
           path: .github/fate/samples
-          key: fate-samples-${{ steps.get_time.outputs.timestamp }}
+          enableCrossOsArchive: true
+          key: fate-samples-dummy
           restore-keys: fate-samples-
-      - name: Sync fate samples
+      - name: Sync FATE Samples
+        id: samples
         shell: msys2 {0}
         run: |
           mkdir -p .github/fate/samples
           rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
+          echo "hash=$(find .github/fate/samples -type f | tr '\\' '/' | LC_ALL=C sort | tr -d '\r' | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      - name: Cache FATE Samples
+        if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
+        uses: actions/cache/save@v4
+        with:
+          path: .github/fate/samples
+          enableCrossOsArchive: true
+          key: fate-samples-${{ steps.samples.outputs.hash }}
       - name: Set up SSH
         shell: msys2 {0}
         env:
@@ -233,19 +240,27 @@ jobs:
                 -DCMAKE_C_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer" \
                 -DZLIB_BUILD_TESTING=OFF -DZLIB_BUILD_SHARED=OFF
           sudo ninja -C build install
-      - name: Get time
-        id: get_time
-        run: echo "timestamp=`date +%s%N`" >> $GITHUB_OUTPUT
-      - name: Cache fate samples
-        uses: actions/cache@v4
+      - name: Restore Cached FATE Samples
+        id: cache
+        uses: actions/cache/restore@v4
         with:
           path: .github/fate/samples
-          key: fate-samples-${{ steps.get_time.outputs.timestamp }}
+          enableCrossOsArchive: true
+          key: fate-samples-dummy
           restore-keys: fate-samples-
-      - name: Sync fate samples
+      - name: Sync FATE Samples
+        id: samples
         run: |
           mkdir -p .github/fate/samples
           rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
+          echo "hash=$(find .github/fate/samples -type f | tr '\\' '/' | LC_ALL=C sort | tr -d '\r' | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      - name: Cache FATE Samples
+        if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
+        uses: actions/cache/save@v4
+        with:
+          path: .github/fate/samples
+          enableCrossOsArchive: true
+          key: fate-samples-${{ steps.samples.outputs.hash }}
       - name: Set up SSH
         env:
           HOST: fate.ffmpeg.org
