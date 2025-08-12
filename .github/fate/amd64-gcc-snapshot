@@ -1,0 +1,12 @@
+slot=amd64-gcc-snapshot
+comment="GCC AMD64"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+arch=amd64
+as=gcc
+cc=gcc
+extra_ldflags="-fuse-ld=mold"
+extra_conf="--cxx=g++ --disable-stripping --enable-version3 --enable-nonfree"
