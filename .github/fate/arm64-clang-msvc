@@ -10,6 +10,6 @@ as=clang
 cc=clang
 ld=clang
 extra_ldflags="-fuse-ld=lld"
-extra_conf="--ar=llvm-ar --cxx=clang++ --nm=llvm-nm --strip=llvm-strip --ranlib=llvm-ranlib --windres=llvm-windres --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree"
+extra_conf="--ar=llvm-ar --cxx=clang++ --nm=llvm-nm --strip=llvm-strip --ranlib=llvm-ranlib --windres=llvm-rc --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree"
 # TODO: those flags shouldn't be needed
 extra_conf+=" --host_extralibs=''"
