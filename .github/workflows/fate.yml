@@ -34,7 +34,6 @@ jobs:
             compiler: clang-msvc
           - debug: true
             compiler: clang-cl-msvc
-          - compiler: clang-msvc
           - assert: true
             compiler: clang-cl-msvc
           - assert: true
