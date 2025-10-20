@@ -11,7 +11,7 @@ jobs:
       matrix:
         os: [windows-2025, windows-11-arm]
         arch: [amd64, arm64]
-        compiler: [clang-msvc, clang-cl-msvc, msvc]
+        compiler: [clang-msvc, clang-cl-msvc, msvc, icx-win]
         asan: [false, true]
         shared: [false, true]
         debug: [false, true]
@@ -44,6 +44,18 @@ jobs:
             shared: true
           - assert: true
             debug: true
+          - compiler: icx-win
+            asan: true
+          - compiler: icx-win
+            shared: true
+          - compiler: icx-win
+            debug: true
+          - compiler: icx-win
+            assert: true
+          - compiler: icx-win
+            arch: arm64
+          # Doesn't work currently
+          - compiler: icx-win
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
@@ -62,6 +74,13 @@ jobs:
             openssh
             rsync
             tar
+      - name: Install Intel oneAPI DPC++/C++ Compiler
+        if: ${{ matrix.compiler == 'icx-win' }}
+        shell: pwsh
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl -OL https://registrationcenter-download.intel.com/akdlm/IRC_NAS/47a201d7-d4cd-4079-a2d8-0e66b860aaaa/intel-dpcpp-cpp-compiler-2025.2.0.536_offline.exe
+          & .\intel-dpcpp-cpp-compiler-2025.2.0.536_offline.exe --silent --eula accept
       - name: Disable autocrlf
         shell: pwsh
         run: |
@@ -152,6 +171,10 @@ jobs:
                                                              $_ -ne 'C:\Strawberry\c\bin' }) -join ';'
           $env:PATH += ";$PWD\gas-preprocessor"
 
+          if ("${{ matrix.compiler }}" -eq "icx-win") {
+              $env:PATH += ";C:\Program Files (x86)\Intel\oneAPI\compiler\latest\bin"
+          }
+
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
 
@@ -185,17 +208,23 @@ jobs:
       matrix:
         os: [ubuntu-24.04, ubuntu-24.04-arm]
         arch: [amd64, arm64]
-        compiler: [clang]
+        compiler: [clang, icx]
         asan: [false, true]
         asm: [false, true]
         msan: [false, true]
         shared: [false]
+        include:
+          - compiler: clang
+            compiler_pkg: clang
+          - compiler: icx
+            compiler_pkg: intel-oneapi-compiler-dpcpp-cpp
         exclude:
           - arch: amd64
             os: ubuntu-24.04-arm
           - arch: arm64
             os: ubuntu-24.04
-          - asan: false
+          - compiler: clang
+            asan: false
             msan: false
           - msan: true
             asan: true
@@ -203,6 +232,14 @@ jobs:
             arch: arm64
           - msan: true
             asm: true
+          - compiler: icx
+            asan: true
+          - compiler: icx
+            msan: true
+          - compiler: icx
+            asm: true
+          - compiler: icx
+            arch: arm64
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.asm && '-asm' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
@@ -212,10 +249,15 @@ jobs:
         run: |
           curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
           echo "deb https://apt.llvm.org/noble/ llvm-toolchain-noble main" | sudo tee /etc/apt/sources.list.d/llvm.list
+      - name: Add Intel oneAPI DPC++/C++ Compiler
+        if: ${{ matrix.compiler == 'icx' }}
+        run: |
+          curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | sudo tee /etc/apt/trusted.gpg.d/apt.intel.asc
+          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/intel.list
       - name: Install dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y ${{ matrix.compiler }} git libxml2-utils lld llvm make nasm openssh-client pkgconf rsync zlib1g-dev
+          sudo apt-get install -y ${{ matrix.compiler_pkg }} git libxml2-utils lld llvm make nasm openssh-client pkgconf rsync zlib1g-dev
       - uses: actions/checkout@v4
       - name: Checkout FFmpeg
         uses: actions/checkout@v4
@@ -277,6 +319,9 @@ jobs:
       - name: Build
         id: build
         run: |
+          if [ "${{ matrix.compiler }}" = "icx" ]; then
+            source /opt/intel/oneapi/setvars.sh
+          fi
           cd .github/fate/src
           ./tests/fate.sh ../${{ env.CONF }}
       - name: Print version
