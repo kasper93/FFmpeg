@@ -11,4 +11,4 @@ cc=clang
 ld=clang
 extra_cflags="-fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined"
 extra_ldflags="-fuse-ld=lld -fsanitize=address,undefined -fno-omit-frame-pointer -fno-sanitize-recover=undefined"
-extra_conf="--ar=llvm-ar --cxx=clang++ --nm=llvm-nm --strip=llvm-strip --ranlib=llvm-ranlib --enable-debug=lldb --disable-stripping --disable-asm --enable-version3 --enable-nonfree"
+extra_conf="--ar=llvm-ar --cxx=clang++ --nm=llvm-nm --strip=llvm-strip --ranlib=llvm-ranlib --enable-debug=lldb --disable-stripping --disable-asm --enable-version3 --enable-nonfree --enable-vulkan --enable-libshaderc"

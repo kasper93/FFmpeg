@@ -6,5 +6,5 @@ repo="file://$PWD"
 samples="../samples"
 makeopts=-j`nproc`
 arch=arm64
-extra_cflags="-fsanitize=address"
-extra_conf="--toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree"
+extra_cflags="-fsanitize=address -MD"
+extra_conf="--toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree --extra-cxxflags=-MD --enable-vulkan --enable-libglslang"

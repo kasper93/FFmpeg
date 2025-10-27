@@ -8,7 +8,7 @@ makeopts=-j`nproc`
 arch=amd64
 cc=clang-cl
 # -fno-sanitize=function for https://github.com/llvm/llvm-project/issues/145160
-extra_cflags="-fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-sanitize=function"
+extra_cflags="-fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-sanitize=function -MD"
 # clang-cl supports autolinking only for -fsanitize=undefined, not for address, unlike cl.exe
 extra_ldflags="clang_rt.asan_dynamic-x86_64.lib clang_rt.asan_dynamic_runtime_thunk-x86_64.lib"
-extra_conf="--cxx=clang-cl --toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree"
+extra_conf="--cxx=clang-cl --toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree --extra-cxxflags=-MD --enable-vulkan --enable-libglslang"
