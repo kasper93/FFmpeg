@@ -1,6 +1,5 @@
 slot=amd64-msvc-shared
 comment="VS2022 MSVC AMD64 (shared)"
-build_only=yes
 fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
 fate_targets="fate fate-build"
 repo="file://$PWD"

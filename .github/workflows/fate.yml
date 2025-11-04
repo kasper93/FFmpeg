@@ -189,7 +189,7 @@ jobs:
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
 
           cd .github/fate/src
-          msys2 -ec 'PKG_CONFIG_PATH=`cygpath -a ''${{ runner.temp }}\install\lib\pkgconfig''` ./tests/fate.sh ../${{ env.CONF }}'
+          msys2 -ec 'PKG_CONFIG_PATH=`cygpath -a ''${{ runner.temp }}\install\lib\pkgconfig''` PATH="$PATH:$PWD/../install/bin" ./tests/fate.sh ../${{ env.CONF }}'
       - name: Print version
         if: always()
         run: |
