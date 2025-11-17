@@ -1,0 +1,12 @@
+slot=amd64-msvc-cet
+comment="VS2022 MSVC AMD64 (CET)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+arch=amd64
+extra_cflags="-MD"
+extra_cxxflags="-MD"
+extra_ldflags="-CETCOMPAT"
+extra_conf="--toolchain=msvc --disable-debug --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree --disable-vulkan"

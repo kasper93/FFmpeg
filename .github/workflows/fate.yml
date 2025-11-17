@@ -16,6 +16,7 @@ jobs:
         shared: [false, true]
         debug: [false, true]
         assert: [false, true]
+        cet: [false, true]
         exclude:
           - arch: amd64
             os: windows-11-arm
@@ -54,10 +55,22 @@ jobs:
             assert: true
           - compiler: icx-win
             arch: arm64
+          - cet: true
+            compiler: clang-msvc
+          - cet: true
+            compiler: clang-cl-msvc
+          - cet: true
+            asan: true
+          - cet: true
+            shared: true
+          - cet: true
+            debug: true
+          - cet: true
+            assert: true
           # Doesn't work currently
           - compiler: icx-win
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
       VULKAN_ROOT: "C:\\VulkanSDK"
       MSYSTEM: MSYS
@@ -83,6 +96,7 @@ jobs:
           curl -OL https://registrationcenter-download.intel.com/akdlm/IRC_NAS/47a201d7-d4cd-4079-a2d8-0e66b860aaaa/intel-dpcpp-cpp-compiler-2025.2.0.536_offline.exe
           & .\intel-dpcpp-cpp-compiler-2025.2.0.536_offline.exe --silent --eula accept
       - name: Install Vulkan SDK
+        if: ${{ !matrix.cet }}
         shell: pwsh
         working-directory: ${{ runner.temp }}
         run: |
@@ -123,7 +137,24 @@ jobs:
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
           $crt = if (${{ matrix.debug }}) { "MultiThreadedDebugDLL" } else { "MultiThreadedDLL" }
-          cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}\install -DCMAKE_MSVC_RUNTIME_LIBRARY="$crt"
+          $cflags = ""
+          $ldflags = ""
+          if ("${{ matrix.cet }}" -eq "true") {
+            if ("${{ matrix.arch }}" -eq "amd64") {
+              $cflags  = "-guard:ehcont"
+              $ldflags = "-guard:ehcont -CETCOMPAT"
+            } elseif ("${{ matrix.arch }}" -eq "arm64") {
+              $cflags  = "-guard:ehcont -guard:signret"
+              $ldflags = "-guard:ehcont -guard:delayloadsignret"
+            }
+          }
+          cmake -GNinja -Bbuild `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_INSTALL_PREFIX=${{ runner.temp }}\install `
+            -DCMAKE_MSVC_RUNTIME_LIBRARY="$crt" `
+            -DCMAKE_C_FLAGS="$cflags" `
+            -DCMAKE_EXE_LINKER_FLAGS="$ldflags" `
+            -DCMAKE_SHARED_LINKER_FLAGS="$ldflags"
           ninja -C build install
           # FFmpeg replaces -lz with zlib.lib for MSVC targets
           cp -force ${{ runner.temp }}\install\lib\zs.lib ${{ runner.temp }}\install\lib\zlib.lib
