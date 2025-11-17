@@ -262,6 +262,7 @@ jobs:
         asm: [false, true]
         msan: [false, true]
         shared: [false]
+        cet: [false, true]
         include:
           - compiler: clang
             compiler_pkg: clang
@@ -275,6 +276,7 @@ jobs:
           - compiler: clang
             asan: false
             msan: false
+            cet: false
           - msan: true
             asan: true
           - msan: true
@@ -289,9 +291,18 @@ jobs:
             asm: true
           - compiler: icx
             arch: arm64
+          - cet: true
+            compiler: icx
+          - cet: true
+            asan: true
+          - cet: true
+            msan: true
+          - cet: true
+            asm: false
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.asm && '-asm' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+      GLIBC_TUNABLES: glibc.cpu.hwcaps=SHSTK
     steps:
       - name: Print CPU Info
         run: |
@@ -307,16 +318,18 @@ jobs:
           curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | sudo tee /etc/apt/trusted.gpg.d/apt.intel.asc
           echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/intel.list
       - name: Create Vulkan SDK directory
+        if: ${{ !matrix.cet }}
         run: |
           sudo mkdir -p /opt/vulkan-sdk
           sudo chown $USER:$USER /opt/vulkan-sdk
       - name: Install Vulkan SDK
+        if: ${{ !matrix.cet }}
         working-directory: /opt/vulkan-sdk
         run: |
           curl -O https://sdk.lunarg.com/sdk/download/latest/linux/vulkan-sdk.tar.xz
           tar xvf vulkan-sdk.tar.xz
       - name: Build Vulkan SDK
-        if: ${{ matrix.os == 'ubuntu-24.04-arm' }}
+        if: ${{ matrix.os == 'ubuntu-24.04-arm' && !matrix.cet }}
         working-directory: /opt/vulkan-sdk
         run: |
           cd 1.*
@@ -389,7 +402,9 @@ jobs:
           if [ "${{ matrix.compiler }}" = "icx" ]; then
             source /opt/intel/oneapi/setvars.sh
           fi
-          source /opt/vulkan-sdk/1.*/setup-env.sh
+          if [ "${{ matrix.cet }}" = "false" ]; then
+            source /opt/vulkan-sdk/1.*/setup-env.sh
+          fi
           cd .github/fate/src
           ./tests/fate.sh ../${{ env.CONF }}
       - name: Print version
@@ -404,6 +419,10 @@ jobs:
         if: always()
         run: |
           cat .github/fate/configure.log
+      - name: Print config.log
+        if: always()
+        run: |
+          cat .github/fate/build/ffbuild/config.log
       - name: Print compile.log
         if: always()
         run: |
@@ -412,6 +431,10 @@ jobs:
         if: always()
         run: |
           cat .github/fate/test.log
+      - name: readelf
+        run: |
+          find .github/fate/install/
+          readelf -n .github/fate/install/bin/ffmpeg
 
   debian:
     runs-on: ${{ matrix.os }}
