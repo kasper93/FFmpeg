@@ -5,6 +5,7 @@ fate_targets="fate fate-build"
 repo="file://$PWD"
 samples="../samples"
 makeopts=-j`nproc`
+skip_clean=yes
 arch=amd64
 cc=clang-cl
 # -fno-sanitize=function for https://github.com/llvm/llvm-project/issues/145160

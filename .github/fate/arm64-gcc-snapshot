@@ -5,6 +5,7 @@ fate_targets="fate fate-build"
 repo="file://$PWD"
 samples="../samples"
 makeopts=-j`nproc`
+skip_clean=yes
 arch=arm64
 as=gcc
 cc=gcc

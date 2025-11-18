@@ -5,6 +5,7 @@ fate_targets="fate fate-build"
 repo="file://$PWD"
 samples="../samples"
 makeopts=-j`nproc`
+skip_clean=yes
 arch=amd64
 as=icx
 cc=icx
