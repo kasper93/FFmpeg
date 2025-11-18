@@ -263,6 +263,7 @@ jobs:
         msan: [false, true]
         shared: [false]
         cet: [false, true]
+        sde: [false, true]
         include:
           - compiler: clang
             compiler_pkg: clang
@@ -277,6 +278,7 @@ jobs:
             asan: false
             msan: false
             cet: false
+            sde: false
           - msan: true
             asan: true
           - msan: true
@@ -299,8 +301,20 @@ jobs:
             msan: true
           - cet: true
             asm: false
+          - sde: true
+            arch: arm64
+          - sde: true
+            compiler: icx
+          - sde: true
+            asan: true
+          - sde: true
+            msan: true
+          - sde: true
+            cet: true
+          - sde: true
+            asm: false
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
       GLIBC_TUNABLES: glibc.cpu.hwcaps=SHSTK
     steps:
@@ -318,12 +332,12 @@ jobs:
           curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | sudo tee /etc/apt/trusted.gpg.d/apt.intel.asc
           echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/intel.list
       - name: Create Vulkan SDK directory
-        if: ${{ !matrix.cet }}
+        if: ${{ !matrix.cet && !matrix.sde }}
         run: |
           sudo mkdir -p /opt/vulkan-sdk
           sudo chown $USER:$USER /opt/vulkan-sdk
       - name: Install Vulkan SDK
-        if: ${{ !matrix.cet }}
+        if: ${{ !matrix.cet && !matrix.sde }}
         working-directory: /opt/vulkan-sdk
         run: |
           curl -O https://sdk.lunarg.com/sdk/download/latest/linux/vulkan-sdk.tar.xz
@@ -334,6 +348,13 @@ jobs:
         run: |
           cd 1.*
           ./vulkansdk --maxjobs vulkan-loader vulkan-headers shaderc
+      - name: Download Intel SDE
+        if: ${{ matrix.sde }}
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl -O https://downloadmirror.intel.com/859732/sde-external-9.58.0-2025-06-16-lin.tar.xz
+          tar xvf sde-external-9.58.0-2025-06-16-lin.tar.xz
+          echo "SDE_PATH=${{ runner.temp }}/sde-external-9.58.0-2025-06-16-lin" >> $GITHUB_ENV
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -402,8 +423,12 @@ jobs:
           if [ "${{ matrix.compiler }}" = "icx" ]; then
             source /opt/intel/oneapi/setvars.sh
           fi
-          if [ "${{ matrix.cet }}" = "false" ]; then
+          if [ "${{ matrix.cet }}" = "false" ] && [ "${{ matrix.sde }}" != "true" ]; then
             source /opt/vulkan-sdk/1.*/setup-env.sh
+          fi
+          if [ "${{ matrix.sde }}" = "true" ]; then
+            export PATH="$SDE_PATH:$PATH"
+            echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
           fi
           cd .github/fate/src
           ./tests/fate.sh ../${{ env.CONF }}

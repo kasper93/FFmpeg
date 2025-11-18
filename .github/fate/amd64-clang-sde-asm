@@ -1,0 +1,17 @@
+slot=amd64-clang-sde-asm
+comment="Clang (IBT)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate-checkasm"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+skip_clean=yes
+arch=amd64
+as=clang
+cc=clang
+ld=clang
+target_exec="sde64 -cet -cet-stderr -cet-abort -cet-call-stack -cet-endbr-exe -cet_linux_mode old --"
+extra_cflags="-fcf-protection=full"
+extra_cxxflags="-fcf-protection=full"
+extra_ldflags="-fuse-ld=lld -static"
+extra_conf="--ar=llvm-ar --cxx=clang++ --nm=llvm-nm --strip=llvm-strip --ranlib=llvm-ranlib --enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree --disable-vulkan"
