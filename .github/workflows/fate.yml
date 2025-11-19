@@ -69,6 +69,8 @@ jobs:
             assert: true
           # Doesn't work currently
           - compiler: icx-win
+          # Only SHSTK is supported, enable if we can test IBT
+          - cet: true
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
@@ -313,6 +315,8 @@ jobs:
             cet: true
           - sde: true
             asm: false
+          # No HW support
+          - cet: true
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
