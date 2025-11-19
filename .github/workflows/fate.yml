@@ -269,8 +269,8 @@ jobs:
         include:
           - compiler: clang
             compiler_pkg: clang
-          - compiler: icx
-            compiler_pkg: intel-oneapi-compiler-dpcpp-cpp
+          # - compiler: icx
+          #   compiler_pkg: intel-oneapi-compiler-dpcpp-cpp
         exclude:
           - arch: amd64
             os: ubuntu-24.04-arm
@@ -317,6 +317,8 @@ jobs:
             asm: false
           # No HW support
           - cet: true
+          # Enable if needed
+          - compiler: icx
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
