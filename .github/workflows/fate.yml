@@ -183,7 +183,7 @@ jobs:
         run: |
           mkdir -p .github/fate/samples
           rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
-          echo "hash=$(find .github/fate/samples -type f | tr '\\' '/' | LC_ALL=C sort | tr -d '\r' | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
         uses: actions/cache/save@v4
@@ -400,7 +400,7 @@ jobs:
         run: |
           mkdir -p .github/fate/samples
           rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
-          echo "hash=$(find .github/fate/samples -type f | tr '\\' '/' | LC_ALL=C sort | tr -d '\r' | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
         uses: actions/cache/save@v4
@@ -608,7 +608,7 @@ jobs:
         run: |
           mkdir -p .github/fate/samples
           rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
-          echo "hash=$(find .github/fate/samples -type f | tr '\\' '/' | LC_ALL=C sort | tr -d '\r' | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
         uses: actions/cache/save@v4
@@ -722,7 +722,7 @@ jobs:
         run: |
           mkdir -p .github/fate/samples
           rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
-          echo "hash=$(find .github/fate/samples -type f | tr '\\' '/' | LC_ALL=C sort | tr -d '\r' | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+          echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
         uses: actions/cache/save@v4
