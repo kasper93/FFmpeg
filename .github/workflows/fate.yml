@@ -118,21 +118,21 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Checkout FFmpeg
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
           path: .github/fate/src
       - name: Checkout gas-preprocessor
         if: ${{ matrix.compiler == 'msvc' || matrix.compiler == 'clang-cl-msvc' }}
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: ffmpeg/gas-preprocessor
           path: gas-preprocessor
       - name: Checkout zlib
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: madler/zlib
           # Switch to stable release when this is available https://github.com/madler/zlib/issues/787
@@ -291,7 +291,7 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.sys }}
@@ -380,9 +380,9 @@ jobs:
         if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'clangarm64' }}
         run: |
           pacboy --noconfirm -S jack2
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Checkout FFmpeg
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
@@ -573,16 +573,16 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y ${{ matrix.compiler_pkg }} git libsdl2-dev libxml2-utils lld llvm make nasm openssh-client pkgconf rsync zlib1g-dev
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Checkout FFmpeg
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
           path: .github/fate/src
       - name: Checkout zlib
         if: matrix.msan
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           repository: madler/zlib
           ref: develop
@@ -702,9 +702,9 @@ jobs:
         run: |
           apt-get update
           apt-get install -y ${{ matrix.compiler }} git libsdl2-dev libvulkan-dev glslang-dev spirv-tools libxml2-utils make mold nasm openssh-client pkgconf rsync zlib1g-dev
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: Checkout FFmpeg
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
