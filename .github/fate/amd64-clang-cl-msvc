@@ -9,4 +9,5 @@ skip_clean=yes
 arch=amd64
 cc=clang-cl
 extra_cflags="-MD"
-extra_conf="--cxx=clang-cl --toolchain=msvc --disable-debug --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree --extra-cxxflags=-MD --enable-vulkan --enable-libglslang"
+extra_cxxflags="-MD"
+extra_conf="--cxx=clang-cl --toolchain=msvc --disable-debug --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree --enable-vulkan --enable-libglslang"

@@ -8,4 +8,5 @@ makeopts=-j`nproc`
 skip_clean=yes
 arch=arm64
 extra_cflags="-MDd"
-extra_conf="--toolchain=msvc --disable-optimizations --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree  --extra-cxxflags=-MDd --disable-vulkan"
+extra_cxxflags="-MDd"
+extra_conf="--toolchain=msvc --disable-optimizations --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree --disable-vulkan"
