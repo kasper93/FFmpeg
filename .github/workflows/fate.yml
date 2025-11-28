@@ -174,7 +174,6 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-dummy
           restore-keys: fate-samples-
       - name: Sync FATE Samples
@@ -189,7 +188,6 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-${{ steps.samples.outputs.hash }}
       - name: Set up SSH
         shell: msys2 {0}
@@ -392,7 +390,6 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-dummy
           restore-keys: fate-samples-
       - name: Sync FATE Samples
@@ -406,7 +403,6 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-${{ steps.samples.outputs.hash }}
       - name: Set up SSH
         env:
@@ -600,7 +596,6 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-dummy
           restore-keys: fate-samples-
       - name: Sync FATE Samples
@@ -614,7 +609,6 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-${{ steps.samples.outputs.hash }}
       - name: Set up SSH
         env:
@@ -714,7 +708,6 @@ jobs:
         uses: actions/cache/restore@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-dummy
           restore-keys: fate-samples-
       - name: Sync FATE Samples
@@ -728,7 +721,6 @@ jobs:
         uses: actions/cache/save@v4
         with:
           path: .github/fate/samples
-          enableCrossOsArchive: true
           key: fate-samples-${{ steps.samples.outputs.hash }}
       - name: Set up SSH
         env:
