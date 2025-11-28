@@ -10,13 +10,24 @@ jobs:
       fail-fast: false
       matrix:
         os: [windows-2025, windows-11-arm]
-        arch: [amd64, arm64]
+        arch: [amd64, arm64, x86_32]
         compiler: [clang-msvc, clang-cl-msvc, msvc, icx-win]
         asan: [false, true]
         shared: [false, true]
         debug: [false, true]
         assert: [false, true]
         cet: [false, true]
+        include:
+          - os: windows-2025
+            arch: x86_32
+            target_arch: x86
+            host_arch: amd64
+            compiler: msvc
+            asan: false
+            shared: false
+            debug: true
+            assert: false
+            cet: false
         exclude:
           - arch: amd64
             os: windows-11-arm
@@ -71,6 +82,7 @@ jobs:
           - compiler: icx-win
           # Only SHSTK is supported, enable if we can test IBT
           - cet: true
+          - arch: x86_32
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
@@ -106,7 +118,7 @@ jobs:
           curl -OL https://registrationcenter-download.intel.com/akdlm/IRC_NAS/47a201d7-d4cd-4079-a2d8-0e66b860aaaa/intel-dpcpp-cpp-compiler-2025.2.0.536_offline.exe
           & .\intel-dpcpp-cpp-compiler-2025.2.0.536_offline.exe --silent --eula accept
       - name: Install Vulkan SDK
-        if: ${{ !matrix.cet }}
+        if: ${{ !matrix.cet && matrix.arch != 'x86_32' }}
         shell: pwsh
         working-directory: ${{ runner.temp }}
         run: |
@@ -145,7 +157,7 @@ jobs:
           # Workaround for https://github.com/madler/zlib/issues/787#issuecomment-3094568653
           (Get-Content "zconf.h") -replace '#if HAVE_UNISTD_H-0', '#if defined(HAVE_UNISTD_H) && HAVE_UNISTD_H' | Set-Content "zconf.h"
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.host_arch || matrix.arch }}"
           $crt = if (${{ matrix.debug }}) { "MultiThreadedDebugDLL" } else { "MultiThreadedDLL" }
           $cflags = ""
           $ldflags = ""
@@ -225,7 +237,7 @@ jobs:
           }
 
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.host_arch || matrix.arch }}"
 
           cd .github/fate/src
           msys2 -ec 'PKG_CONFIG_PATH=`cygpath -a ''${{ runner.temp }}\install\lib\pkgconfig''` PATH="$PATH:$PWD/../install/bin" ./tests/fate.sh ../${{ env.CONF }}'
@@ -253,7 +265,7 @@ jobs:
         shell: pwsh
         run: |
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.host_arch || matrix.arch }}"
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   msys2:
@@ -453,7 +465,7 @@ jobs:
         shell: pwsh
         run: |
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
-          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.arch }} -host_arch=${{ matrix.arch }}"
+          Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.target_arch || matrix.arch }}"
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   ubuntu:
