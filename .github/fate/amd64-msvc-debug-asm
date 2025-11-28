@@ -1,0 +1,12 @@
+slot=amd64-msvc-debug-asm
+comment="VS2022 MSVC AMD64 (Debug/ASM)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+skip_clean=yes
+arch=amd64
+extra_cflags="-MDd"
+extra_cxxflags="-MDd"
+extra_conf="--toolchain=msvc --disable-optimizations --optflags=-Od --target-os=win64 --enable-w32threads --enable-version3 --enable-nonfree --disable-vulkan"

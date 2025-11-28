@@ -1,0 +1,12 @@
+slot=x86_32-msvc-asan
+comment="VS2022 MSVC x86_32 (ASAN)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+skip_clean=yes
+arch=x86_32
+extra_cflags="-fsanitize=address -MD"
+extra_cxxflags="-fsanitize=address -MD"
+extra_conf="--toolchain=msvc --target-os=win32 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree"

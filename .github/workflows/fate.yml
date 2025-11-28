@@ -13,6 +13,7 @@ jobs:
         arch: [amd64, arm64, x86_32]
         compiler: [clang-msvc, clang-cl-msvc, msvc, icx-win]
         asan: [false, true]
+        asm: [false, true]
         shared: [false, true]
         debug: [false, true]
         assert: [false, true]
@@ -24,8 +25,31 @@ jobs:
             host_arch: amd64
             compiler: msvc
             asan: false
+            asm: false
             shared: false
             debug: true
+            assert: false
+            cet: false
+          - os: windows-2025
+            arch: x86_32
+            target_arch: x86
+            host_arch: amd64
+            compiler: msvc
+            asan: false
+            asm: true
+            shared: false
+            debug: true
+            assert: false
+            cet: false
+          - os: windows-2025
+            arch: x86_32
+            target_arch: x86
+            host_arch: amd64
+            compiler: msvc
+            asan: true
+            asm: false
+            shared: false
+            debug: false
             assert: false
             cet: false
         exclude:
@@ -83,8 +107,22 @@ jobs:
           # Only SHSTK is supported, enable if we can test IBT
           - cet: true
           - arch: x86_32
+          - asm: true
+            asan: true
+          - asm: true
+            shared: true
+          - asm: true
+            assert: true
+          - asm: true
+            cet: true
+          - asm: true
+            compiler: clang-msvc
+          - asm: true
+            compiler: clang-cl-msvc
+          - asm: true
+            debug: false
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
       VULKAN_ROOT: "C:\\VulkanSDK"
       MSYSTEM: MSYS
