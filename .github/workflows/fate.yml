@@ -5,6 +5,7 @@ on:
 
 jobs:
   win32:
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -307,6 +308,7 @@ jobs:
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   msys2:
+    name: msys2-${{ matrix.sys }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -507,6 +509,7 @@ jobs:
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   ubuntu:
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -721,6 +724,7 @@ jobs:
           readelf -r .github/fate/install/bin/ffmpeg
 
   debian:
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
