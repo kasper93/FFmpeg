@@ -292,6 +292,10 @@ jobs:
         if: always()
         run: |
           cat .github/fate/configure.log
+      - name: Print config.log
+        if: always()
+        run: |
+          cat .github/fate/build/ffbuild/config.log
       - name: Print compile.log
         if: always()
         run: |
@@ -813,6 +817,10 @@ jobs:
         if: always()
         run: |
           cat .github/fate/configure.log
+      - name: Print config.log
+        if: always()
+        run: |
+          cat .github/fate/build/ffbuild/config.log
       - name: Print compile.log
         if: always()
         run: |
