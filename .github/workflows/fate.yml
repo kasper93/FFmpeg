@@ -284,10 +284,6 @@ jobs:
         if: always()
         run: |
           cat .github/fate/version-${{ env.CONF }}
-      - name: Print report
-        if: always()
-        run: |
-          cat .github/fate/report
       - name: Print configure.log
         if: always()
         run: |
@@ -485,10 +481,6 @@ jobs:
         if: always()
         run: |
           cat .github/fate/version-${{ env.CONF }}
-      - name: Print report
-        if: always()
-        run: |
-          cat .github/fate/report
       - name: Print configure.log
         if: always()
         run: |
@@ -701,10 +693,6 @@ jobs:
         if: always()
         run: |
           cat .github/fate/version-${{ env.CONF }}
-      - name: Print report
-        if: always()
-        run: |
-          cat .github/fate/report
       - name: Print configure.log
         if: always()
         run: |
@@ -809,10 +797,6 @@ jobs:
         if: always()
         run: |
           cat .github/fate/version-${{ env.CONF }}
-      - name: Print report
-        if: always()
-        run: |
-          cat .github/fate/report
       - name: Print configure.log
         if: always()
         run: |
