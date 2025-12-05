@@ -10,7 +10,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2025, windows-11-arm]
+        os: [windows-2025-vs2026, windows-11-arm]
         arch: [amd64, arm64, x86_32]
         compiler: [clang-msvc, clang-cl-msvc, msvc, icx-win]
         asan: [false, true]
@@ -20,7 +20,7 @@ jobs:
         assert: [false, true]
         cet: [false, true]
         include:
-          - os: windows-2025
+          - os: windows-2025-vs2026
             arch: x86_32
             target_arch: x86
             host_arch: amd64
@@ -31,7 +31,7 @@ jobs:
             debug: true
             assert: false
             cet: false
-          - os: windows-2025
+          - os: windows-2025-vs2026
             arch: x86_32
             target_arch: x86
             host_arch: amd64
@@ -42,23 +42,22 @@ jobs:
             debug: true
             assert: false
             cet: false
-          # fate-lossless-tak fails on VS2022, enable after VS2026 update
-          # - os: windows-2025
-          #   arch: x86_32
-          #   target_arch: x86
-          #   host_arch: amd64
-          #   compiler: msvc
-          #   asan: true
-          #   asm: false
-          #   shared: false
-          #   debug: false
-          #   assert: false
-          #   cet: false
+          - os: windows-2025-vs2026
+            arch: x86_32
+            target_arch: x86
+            host_arch: amd64
+            compiler: msvc
+            asan: true
+            asm: false
+            shared: false
+            debug: false
+            assert: false
+            cet: false
         exclude:
           - arch: amd64
             os: windows-11-arm
           - arch: arm64
-            os: windows-2025
+            os: windows-2025-vs2026
           # Enable once aarch64-pc-windows-msvc/clang_rt.asan.lib is available on the runner
           - arch: arm64
             asan: true
@@ -125,7 +124,7 @@ jobs:
             debug: false
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
-      VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
+      VS: "C:\\Program Files\\Microsoft Visual Studio\\${{ matrix.os == 'windows-2025-vs2026' && '18' || '2022' }}\\Enterprise"
       MSYSTEM: MSYS
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
@@ -318,19 +317,19 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - sys: "clang64"
-            os: "windows-latest"
+          - sys: clang64
+            os: windows-2025-vs2026
             arch: amd64
           # Enable once https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122793 is fixed
           # - sys: "mingw64"
-          #   os: "windows-latest"
+          #   os: windows-2025-vs2026
           #   arch: amd64
           - sys: "mingw32"
-            os: "windows-latest"
+            os: windows-2025-vs2026
             arch: amd64
           # Enable once https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122793 is fixed
           # - sys: "ucrt64"
-          #   os: "windows-latest"
+          #   os: windows-2025-vs2026
           #   arch: amd64
           - sys: "clangarm64"
             os: "windows-11-arm"
@@ -340,7 +339,8 @@ jobs:
         shell: msys2 {0}
     env:
       CONF: msys2-${{ matrix.sys }}
-      VS: "C:\\Program Files\\Microsoft Visual Studio\\2022\\Enterprise"
+      VS: "C:\\Program Files\\Microsoft Visual Studio\\${{ matrix.os == 'windows-2025-vs2026' && '18' || '2022' }}\\Enterprise"
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Disable autocrlf
         shell: pwsh
