@@ -163,7 +163,7 @@ jobs:
         working-directory: ${{ runner.temp }}
         run: |
           $arch = if ("${{ matrix.arch }}" -eq "arm64") { "warm" } else { "windows" }
-          curl https://sdk.lunarg.com/sdk/download/latest/$arch/vulkan_sdk.exe -o vulkan-sdk.exe
+          curl https://sdk.lunarg.com/sdk/download/1.4.328.1/$arch/vulkan_sdk.exe -o vulkan-sdk.exe
           & .\vulkan-sdk.exe in --al -c -t $env:VULKAN_ROOT com.lunarg.vulkan com.lunarg.vulkan.core com.lunarg.vulkan.debug com.lunarg.vulkan.sdl2
       - name: Disable autocrlf
         shell: pwsh
