@@ -848,3 +848,124 @@ jobs:
           readelf -S .github/fate/install/bin/ffmpeg
           readelf -n .github/fate/install/bin/ffmpeg
           readelf -r .github/fate/install/bin/ffmpeg
+
+  chimera:
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        arch: [amd64, arm64]
+        compiler: [clang]
+        exclude:
+          - arch: amd64
+            os: ubuntu-24.04-arm
+          - arch: arm64
+            os: ubuntu-24.04
+          # GHA doesn't support Musl on ARM64 runners with JS actions
+          - arch: arm64
+    container:
+      image: chimeralinux/chimera:latest
+    env:
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+    steps:
+      - name: Print CPU Info
+        run: |
+          cat /proc/cpuinfo
+      - name: Install dependencies
+        run: |
+          apk add cmd:git cmd:rsync cmd:make cmd:pkgconf cmd:ssh cmd:nasm cmd:clang cmd:diff cmd:readelf cmd:tar
+          # Wa are Alpine now! Apparently, only Alpine is allowed to use musl...
+          # Workaround for https://github.com/actions/runner/issues/3852
+          # Needed for actions/checkout.
+          sed '/^ID="/s/chimera/alpine/' /etc/os-release > /tmp/os-release
+          mv /tmp/os-release /etc/os-release
+      - uses: actions/checkout@v6
+      - name: Checkout FFmpeg
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # For fate version string
+          repository: ffmpeg/ffmpeg
+          path: .github/fate/src
+      - name: Checkout zlib
+        uses: actions/checkout@v6
+        with:
+          repository: madler/zlib
+          ref: v1.3.1.2
+          path: zlib
+      - name: Build zlib
+        working-directory: zlib
+        run: |
+          # Workaround for https://github.com/madler/zlib/issues/787#issuecomment-3094568653
+          sed -i '' 's/#if HAVE_UNISTD_H-0/#if defined(HAVE_UNISTD_H) \&\& HAVE_UNISTD_H/' zconf.h
+          mkdir build
+          cd build
+          ../configure --prefix=${{ runner.temp }}/install
+          make -j`nproc` install
+      - name: Restore Cached FATE Samples
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .github/fate/samples
+          key: fate-samples-dummy
+          restore-keys: fate-samples-
+      - name: Sync FATE Samples
+        id: samples
+        run: |
+          mkdir -p .github/fate/samples
+          rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
+          echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      - name: Cache FATE Samples
+        if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
+        uses: actions/cache/save@v4
+        with:
+          path: .github/fate/samples
+          key: fate-samples-${{ steps.samples.outputs.hash }}
+      - name: Set up SSH
+        env:
+          HOST: fate.ffmpeg.org
+          FINGERPRINT: "76:9f:68:32:04:1e:d5:d4:ec:47:3f:dc:fc:18:17:86"
+        run: |
+          mkdir -p "/root/.ssh"
+          chmod 700 "/root/.ssh"
+          ssh-keyscan -t ecdsa "$HOST" > "/root/.ssh/known_hosts"
+          SERVER_FINGERPRINT="$(ssh-keygen -E md5 -lf "/root/.ssh/known_hosts" | grep "$HOST" | awk '{gsub(/^MD5:/, "", $2); print $2}')"
+          if [ "$SERVER_FINGERPRINT" != "$FINGERPRINT" ]; then
+            echo "Fingerprint $SERVER_FINGERPRINT does not match expected $FINGERPRINT"
+            exit 1
+          fi
+          echo "${{ secrets.FATE_SSH_KEY }}" > "/root/.ssh/id_ed25519"
+          chmod 600 "/root/.ssh/id_ed25519"
+      - name: Build
+        id: build
+        run: |
+          clang --version
+          cd .github/fate/src
+          ./tests/fate.sh ../${{ env.CONF }}
+      - name: Print version
+        if: always()
+        run: |
+          cat .github/fate/version-${{ env.CONF }}
+      - name: Print configure.log
+        if: always()
+        run: |
+          cat .github/fate/configure.log
+      - name: Print config.log
+        if: always()
+        run: |
+          cat .github/fate/build/ffbuild/config.log
+      - name: Print compile.log
+        if: always()
+        run: |
+          cat .github/fate/compile.log
+      - name: Print test.log
+        if: always()
+        run: |
+          cat .github/fate/test.log
+      - name: readelf
+        run: |
+          readelf -S .github/fate/install/bin/ffmpeg
+          readelf -n .github/fate/install/bin/ffmpeg
+          readelf -r .github/fate/install/bin/ffmpeg
