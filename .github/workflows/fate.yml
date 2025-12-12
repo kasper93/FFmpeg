@@ -720,108 +720,123 @@ jobs:
           readelf -n .github/fate/install/bin/ffmpeg
           readelf -r .github/fate/install/bin/ffmpeg
 
-  # gcc 16 (20251111-1) is broken, enable after new one is released, upstream bug is fixed
-  # https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122797
-  # debian:
-  #   name: ${{ matrix.arch }}-${{ matrix.compiler }}
-  #   runs-on: ${{ matrix.os }}
-  #   strategy:
-  #     fail-fast: false
-  #     matrix:
-  #       os: [ubuntu-24.04, ubuntu-24.04-arm]
-  #       arch: [amd64, arm64]
-  #       compiler: [gcc-snapshot]
-  #       exclude:
-  #         - arch: amd64
-  #           os: ubuntu-24.04-arm
-  #         - arch: arm64
-  #           os: ubuntu-24.04
-  #   container:
-  #     image: debian:unstable-slim
-  #   env:
-  #     CONF: ${{ matrix.arch }}-${{ matrix.compiler }}
-  #     UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
-  #   steps:
-  #     - name: Print CPU Info
-  #       run: |
-  #         cat /proc/cpuinfo
-  #     - name: Install dependencies
-  #       run: |
-  #         apt-get update
-  #         apt-get install -y ${{ matrix.compiler }} git libsdl2-dev libvulkan-dev glslang-dev spirv-tools libxml2-utils make mold nasm openssh-client pkgconf rsync zlib1g-dev
-  #     - uses: actions/checkout@v6
-  #     - name: Checkout FFmpeg
-  #       uses: actions/checkout@v6
-  #       with:
-  #         fetch-depth: 0 # For fate version string
-  #         repository: ffmpeg/ffmpeg
-  #         path: .github/fate/src
-  #     - name: Restore Cached FATE Samples
-  #       id: cache
-  #       uses: actions/cache/restore@v4
-  #       with:
-  #         path: .github/fate/samples
-  #         key: fate-samples-dummy
-  #         restore-keys: fate-samples-
-  #     - name: Sync FATE Samples
-  #       id: samples
-  #       run: |
-  #         mkdir -p .github/fate/samples
-  #         rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
-  #         echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-  #     - name: Cache FATE Samples
-  #       if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
-  #       uses: actions/cache/save@v4
-  #       with:
-  #         path: .github/fate/samples
-  #         key: fate-samples-${{ steps.samples.outputs.hash }}
-  #     - name: Set up SSH
-  #       env:
-  #         HOST: fate.ffmpeg.org
-  #         FINGERPRINT: "76:9f:68:32:04:1e:d5:d4:ec:47:3f:dc:fc:18:17:86"
-  #       run: |
-  #         export HOME="/root"
-  #         mkdir -p "$HOME/.ssh"
-  #         chmod 700 "$HOME/.ssh"
-  #         ssh-keyscan -t ecdsa "$HOST" > "$HOME/.ssh/known_hosts"
-  #         chmod 644 "$HOME/.ssh/known_hosts"
-  #         SERVER_FINGERPRINT="$(ssh-keygen -E md5 -lf "$HOME/.ssh/known_hosts" | grep "$HOST" | awk '{gsub(/^MD5:/, "", $2); print $2}')"
-  #         if [ "$SERVER_FINGERPRINT" != "$FINGERPRINT" ]; then
-  #           echo "Fingerprint $SERVER_FINGERPRINT does not match expected $FINGERPRINT"
-  #           exit 1
-  #         fi
-  #         echo "${{ secrets.FATE_SSH_KEY }}" > "$HOME/.ssh/id_ed25519"
-  #         chmod 600 "$HOME/.ssh/id_ed25519"
-  #     - name: Build
-  #       id: build
-  #       run: |
-  #         export PATH="/usr/lib/gcc-snapshot/bin:${PATH}"
-  #         export LD_RUN_PATH="/usr/lib/gcc-snapshot/lib"
-  #         gcc --version
-  #         cd .github/fate/src
-  #         ./tests/fate.sh ../${{ env.CONF }}
-  #     - name: Print version
-  #       if: always()
-  #       run: |
-  #         cat .github/fate/version-${{ env.CONF }}
-  #     - name: Print configure.log
-  #       if: always()
-  #       run: |
-  #         cat .github/fate/configure.log
-  #     - name: Print config.log
-  #       if: always()
-  #       run: |
-  #         cat .github/fate/build/ffbuild/config.log
-  #     - name: Print compile.log
-  #       if: always()
-  #       run: |
-  #         cat .github/fate/compile.log
-  #     - name: Print test.log
-  #       if: always()
-  #       run: |
-  #         cat .github/fate/test.log
-  #     - name: readelf
-  #       run: |
-  #         readelf -S .github/fate/install/bin/ffmpeg
-  #         readelf -n .github/fate/install/bin/ffmpeg
-  #         readelf -r .github/fate/install/bin/ffmpeg
+  fedora:
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        arch: [amd64, arm64]
+        compiler: [gcc-snapshot]
+        exclude:
+          - arch: amd64
+            os: ubuntu-24.04-arm
+          - arch: arm64
+            os: ubuntu-24.04
+    container:
+      image: fedora:rawhide
+    env:
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}
+      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+    steps:
+      - name: Print CPU Info
+        run: |
+          cat /proc/cpuinfo
+      - name: Install dependencies
+        run: |
+          dnf -y copr enable jwakely/gcc-latest
+          dnf -y install gcc-latest glibc-devel binutils diffutils texinfo libdrm-devel git sdl2-compat-devel vulkan-headers glslang-devel spirv-tools libxml2 make mold nasm openssh pkgconf rsync zlib-devel
+          echo "/opt/gcc-latest/bin" >> $GITHUB_PATH
+          echo "LD_RUN_PATH=/opt/gcc-latest/lib" >> $GITHUB_ENV
+      - uses: actions/checkout@v6
+      - name: Checkout FFmpeg
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0 # For fate version string
+          repository: ffmpeg/ffmpeg
+          path: .github/fate/src
+      - name: Checkout zlib
+        uses: actions/checkout@v6
+        with:
+          repository: madler/zlib
+          ref: v1.3.1.2
+          path: zlib
+      - name: Build zlib
+        working-directory: zlib
+        run: |
+          # Workaround for https://github.com/madler/zlib/issues/787#issuecomment-3094568653
+          sed -i 's/#if HAVE_UNISTD_H-0/#if defined(HAVE_UNISTD_H) \&\& HAVE_UNISTD_H/' zconf.h
+          mkdir build
+          cd build
+          ../configure --prefix=${{ runner.temp }}/install
+          make -j`nproc` install
+      - name: Restore Cached FATE Samples
+        id: cache
+        uses: actions/cache/restore@v4
+        with:
+          path: .github/fate/samples
+          key: fate-samples-dummy
+          restore-keys: fate-samples-
+      - name: Sync FATE Samples
+        id: samples
+        run: |
+          mkdir -p .github/fate/samples
+          rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
+          echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
+      - name: Cache FATE Samples
+        if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
+        uses: actions/cache/save@v4
+        with:
+          path: .github/fate/samples
+          key: fate-samples-${{ steps.samples.outputs.hash }}
+      - name: Set up SSH
+        env:
+          HOST: fate.ffmpeg.org
+          FINGERPRINT: "76:9f:68:32:04:1e:d5:d4:ec:47:3f:dc:fc:18:17:86"
+        run: |
+          export HOME="/root"
+          mkdir -p "$HOME/.ssh"
+          chmod 700 "$HOME/.ssh"
+          ssh-keyscan -t ecdsa "$HOST" > "$HOME/.ssh/known_hosts"
+          chmod 644 "$HOME/.ssh/known_hosts"
+          SERVER_FINGERPRINT="$(ssh-keygen -E md5 -lf "$HOME/.ssh/known_hosts" | grep "$HOST" | awk '{gsub(/^MD5:/, "", $2); print $2}')"
+          if [ "$SERVER_FINGERPRINT" != "$FINGERPRINT" ]; then
+            echo "Fingerprint $SERVER_FINGERPRINT does not match expected $FINGERPRINT"
+            exit 1
+          fi
+          echo "${{ secrets.FATE_SSH_KEY }}" > "$HOME/.ssh/id_ed25519"
+          chmod 600 "$HOME/.ssh/id_ed25519"
+      - name: Build
+        id: build
+        run: |
+          gcc --version
+          cd .github/fate/src
+          export LD_LIBRARY_PATH=${{ runner.temp }}/install/lib
+          export PKG_CONFIG_PATH=${{ runner.temp }}/install/lib/pkgconfig
+          ./tests/fate.sh ../${{ env.CONF }}
+      - name: Print version
+        if: always()
+        run: |
+          cat .github/fate/version-${{ env.CONF }}
+      - name: Print configure.log
+        if: always()
+        run: |
+          cat .github/fate/configure.log
+      - name: Print config.log
+        if: always()
+        run: |
+          cat .github/fate/build/ffbuild/config.log
+      - name: Print compile.log
+        if: always()
+        run: |
+          cat .github/fate/compile.log
+      - name: Print test.log
+        if: always()
+        run: |
+          cat .github/fate/test.log
+      - name: readelf
+        run: |
+          readelf -S .github/fate/install/bin/ffmpeg
+          readelf -n .github/fate/install/bin/ffmpeg
+          readelf -r .github/fate/install/bin/ffmpeg
