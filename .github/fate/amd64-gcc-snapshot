@@ -9,5 +9,5 @@ skip_clean=yes
 arch=amd64
 as=gcc
 cc=gcc
-extra_ldflags="-fuse-ld=mold"
+# extra_ldflags="-fuse-ld=mold"
 extra_conf="--cxx=g++ --disable-stripping --enable-version3 --enable-nonfree --enable-vulkan --enable-libglslang"
