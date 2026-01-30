@@ -737,6 +737,7 @@ jobs:
         os: [ubuntu-24.04, ubuntu-24.04-arm]
         arch: [amd64, arm64]
         compiler: [gcc-snapshot]
+        short-enums: [false, true]
         exclude:
           - arch: amd64
             os: ubuntu-24.04-arm
@@ -745,7 +746,7 @@ jobs:
     container:
       image: fedora:rawhide
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.short-enums && '-short-enums' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Print CPU Info
