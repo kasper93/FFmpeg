@@ -511,77 +511,31 @@ jobs:
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   ubuntu:
-    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
-        arch: [amd64, arm64]
-        compiler: [clang, icx]
-        asan: [false, true]
-        asm: [false, true]
-        msan: [false, true]
-        shared: [false]
-        cet: [false, true]
-        sde: [false, true]
         include:
-          - compiler: clang
-            compiler_pkg: clang
-          # - compiler: icx
-          #   compiler_pkg: intel-oneapi-compiler-dpcpp-cpp
-        exclude:
-          - arch: amd64
-            os: ubuntu-24.04-arm
-          - arch: arm64
-            os: ubuntu-24.04
-          - compiler: clang
-            asan: false
-            msan: false
-            cet: false
-            sde: false
-          - msan: true
-            asan: true
-          - msan: true
-            arch: arm64
-          - msan: true
-            asm: true
-          - compiler: icx
-            asan: true
-          - compiler: icx
-            msan: true
-          - compiler: icx
-            asm: true
-          - compiler: icx
-            arch: arm64
-          - cet: true
-            compiler: icx
-          - cet: true
-            asan: true
-          - cet: true
-            msan: true
-          - cet: true
-            asm: false
-          - sde: true
-            arch: arm64
-          - sde: true
-            compiler: icx
-          - sde: true
-            asan: true
-          - sde: true
-            msan: true
-          - sde: true
-            cet: true
-          - sde: true
-            asm: false
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '' }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '' }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: true, shared: false, cet: false, sde: false, asm: false, var_init: '' }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized' }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero' }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern' }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '' }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '' }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized' }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero' }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern' }
           # No HW support
-          - cet: true
+          # cet: true
           # Enable if needed
-          - compiler: icx
+          # compiler: icx
           # Enable after https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/20919 is merged
-          - sde: true
+          # sde: true
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
       GLIBC_TUNABLES: glibc.cpu.hwcaps=SHSTK
     steps:
