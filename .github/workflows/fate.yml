@@ -511,23 +511,24 @@ jobs:
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   ubuntu:
-    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}${{ matrix.short-enums && '-short-enums' || '' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '' }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '' }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: true, shared: false, cet: false, sde: false, asm: false, var_init: '' }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized' }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero' }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern' }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '' }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '' }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized' }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero' }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern' }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '', short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '', short-enums: true }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: true, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero', short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern', short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '', short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero', short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern', short-enums: false }
           # No HW support
           # cet: true
           # Enable if needed
@@ -535,7 +536,7 @@ jobs:
           # Enable after https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/20919 is merged
           # sde: true
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}${{ matrix.short-enums && '-short-enums' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
       GLIBC_TUNABLES: glibc.cpu.hwcaps=SHSTK
     steps:
