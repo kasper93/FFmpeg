@@ -509,198 +509,34 @@ jobs:
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.target_arch || matrix.arch }}"
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
-  ubuntu:
-    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}${{ matrix.short-enums && '-short-enums' || '' }}
+  fedora:
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         include:
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '', short-enums: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '', short-enums: true }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: true, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero', short-enums: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern', short-enums: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: true, msan: false, shared: false, cet: false, sde: false, asm: true, var_init: '', short-enums: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero', short-enums: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_pkg: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern', short-enums: false }
-          # No HW support
-          # cet: true
-          # Enable if needed
-          # compiler: icx
-          # Enable after https://code.ffmpeg.org/FFmpeg/FFmpeg/pulls/20919 is merged
-          # sde: true
-    env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) }}${{ matrix.short-enums && '-short-enums' || '' }}
-      UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
-      GLIBC_TUNABLES: glibc.cpu.hwcaps=SHSTK
-    steps:
-      - name: Print CPU Info
-        run: |
-          cat /proc/cpuinfo
-      - name: Add Nightly LLVM
-        if: ${{ matrix.os == 'ubuntu-24.04' }}
-        run: |
-          curl -fsSL https://apt.llvm.org/llvm-snapshot.gpg.key | sudo tee /etc/apt/trusted.gpg.d/apt.llvm.org.asc
-          echo "deb https://apt.llvm.org/noble/ llvm-toolchain-noble main" | sudo tee /etc/apt/sources.list.d/llvm.list
-      - name: Add Intel oneAPI DPC++/C++ Compiler
-        if: ${{ matrix.compiler == 'icx' }}
-        run: |
-          curl -fsSL https://apt.repos.intel.com/intel-gpg-keys/GPG-PUB-KEY-INTEL-SW-PRODUCTS.PUB | sudo tee /etc/apt/trusted.gpg.d/apt.intel.asc
-          echo "deb https://apt.repos.intel.com/oneapi all main" | sudo tee /etc/apt/sources.list.d/intel.list
-      - name: Create Vulkan SDK directory
-        if: ${{ !matrix.cet && !matrix.sde }}
-        run: |
-          sudo mkdir -p /opt/vulkan-sdk
-          sudo chown $USER:$USER /opt/vulkan-sdk
-      - name: Install Vulkan SDK
-        if: ${{ !matrix.cet && !matrix.sde }}
-        working-directory: /opt/vulkan-sdk
-        run: |
-          curl -O https://sdk.lunarg.com/sdk/download/latest/linux/vulkan-sdk.tar.xz
-          tar xvf vulkan-sdk.tar.xz
-      - name: Build Vulkan SDK
-        if: ${{ matrix.os == 'ubuntu-24.04-arm' && !matrix.cet }}
-        working-directory: /opt/vulkan-sdk
-        run: |
-          cd 1.*
-          ./vulkansdk --maxjobs vulkan-loader vulkan-headers shaderc
-      - name: Download Intel SDE
-        if: ${{ matrix.sde }}
-        working-directory: ${{ runner.temp }}
-        run: |
-          curl -O https://downloadmirror.intel.com/859732/sde-external-9.58.0-2025-06-16-lin.tar.xz
-          tar xvf sde-external-9.58.0-2025-06-16-lin.tar.xz
-          echo "SDE_PATH=${{ runner.temp }}/sde-external-9.58.0-2025-06-16-lin" >> $GITHUB_ENV
-      - name: Install dependencies
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y ${{ matrix.compiler_pkg }} git libsdl2-dev libxml2-utils lld llvm make nasm openssh-client pkgconf rsync zlib1g-dev
-      - name: Free disk space
-        run: |
-          sudo apt-get autoremove -y
-          sudo apt-get clean
-          sudo rm -rf /var/lib/apt/lists/*
-      - uses: actions/checkout@v6
-      - name: Checkout FFmpeg
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0 # For fate version string
-          repository: ffmpeg/ffmpeg
-          path: .github/fate/src
-      - name: Checkout zlib
-        if: matrix.msan
-        uses: actions/checkout@v6
-        with:
-          repository: madler/zlib
-          ref: develop
-          path: zlib
-      - name: Build zlib
-        if: matrix.msan
-        working-directory: zlib
-        run: |
-          cmake -GNinja -Bbuild -DCMAKE_BUILD_TYPE=RelWithDebInfo -DCMAKE_C_COMPILER=${{ matrix.compiler }} \
-                -DCMAKE_C_FLAGS="-fsanitize=memory -fsanitize-memory-track-origins -fno-omit-frame-pointer" \
-                -DZLIB_BUILD_TESTING=OFF -DZLIB_BUILD_SHARED=OFF
-          sudo ninja -C build install
-      - name: Restore Cached FATE Samples
-        id: cache
-        uses: actions/cache/restore@v4
-        with:
-          path: .github/fate/samples
-          key: fate-samples-dummy
-          restore-keys: fate-samples-
-      - name: Sync FATE Samples
-        id: samples
-        run: |
-          mkdir -p .github/fate/samples
-          rsync -vrltLW --timeout=60 rsync://fate-suite.ffmpeg.org/fate-suite/ .github/fate/samples/
-          echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
-      - name: Cache FATE Samples
-        if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
-        uses: actions/cache/save@v4
-        with:
-          path: .github/fate/samples
-          key: fate-samples-${{ steps.samples.outputs.hash }}
-      - name: Set up SSH
-        env:
-          HOST: fate.ffmpeg.org
-          FINGERPRINT: "76:9f:68:32:04:1e:d5:d4:ec:47:3f:dc:fc:18:17:86"
-        run: |
-          mkdir -p "$HOME/.ssh"
-          chmod 700 "$HOME/.ssh"
-          ssh-keyscan -t ecdsa "$HOST" > "$HOME/.ssh/known_hosts"
-          SERVER_FINGERPRINT="$(ssh-keygen -E md5 -lf "$HOME/.ssh/known_hosts" | grep "$HOST" | awk '{gsub(/^MD5:/, "", $2); print $2}')"
-          if [ "$SERVER_FINGERPRINT" != "$FINGERPRINT" ]; then
-            echo "Fingerprint $SERVER_FINGERPRINT does not match expected $FINGERPRINT"
-            exit 1
-          fi
-          echo "${{ secrets.FATE_SSH_KEY }}" > "$HOME/.ssh/id_ed25519"
-          chmod 600 "$HOME/.ssh/id_ed25519"
-      - name: Build
-        id: build
-        run: |
-          if [ "${{ matrix.compiler }}" = "icx" ]; then
-            source /opt/intel/oneapi/setvars.sh
-          fi
-          if [ "${{ matrix.cet }}" = "false" ] && [ "${{ matrix.sde }}" != "true" ]; then
-            source /opt/vulkan-sdk/1.*/setup-env.sh
-          fi
-          if [ "${{ matrix.sde }}" = "true" ]; then
-            export PATH="$SDE_PATH:$PATH"
-            echo 0 | sudo tee /proc/sys/kernel/yama/ptrace_scope
-          fi
-          cd .github/fate/src
-          ./tests/fate.sh ../${{ env.CONF }}
-      - name: Print version
-        if: always()
-        run: |
-          cat .github/fate/version-${{ env.CONF }}
-      - name: Print configure.log
-        if: always()
-        run: |
-          cat .github/fate/configure.log
-      - name: Print config.log
-        if: always()
-        run: |
-          cat .github/fate/build/ffbuild/config.log
-      - name: Print compile.log
-        if: always()
-        run: |
-          cat .github/fate/compile.log
-      - name: Print test.log
-        if: always()
-        run: |
-          cat .github/fate/test.log
-      - name: readelf
-        run: |
-          readelf -S .github/fate/install/bin/ffmpeg
-          readelf -n .github/fate/install/bin/ffmpeg
-          readelf -r .github/fate/install/bin/ffmpeg
-
-  fedora:
-    name: ${{ matrix.arch }}-${{ matrix.compiler }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      fail-fast: false
-      matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
-        arch: [amd64, arm64]
-        compiler: [gcc-snapshot]
-        short-enums: [false, true]
-        exclude:
-          - arch: amd64
-            os: ubuntu-24.04-arm
-          - arch: arm64
-            os: ubuntu-24.04
+          # gcc
+          - { os: ubuntu-24.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: true  }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false }
+          # clang
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: true  }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: true,  shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false }
+          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false }
     container:
       image: fedora:rawhide
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.short-enums && '-short-enums' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Print CPU Info
@@ -708,10 +544,26 @@ jobs:
           cat /proc/cpuinfo
       - name: Install dependencies
         run: |
+          dnf -y install --best \
+            binutils cmake diffutils git glibc-devel glslang-devel \
+            libdrm-devel libshaderc-devel libxml2 make mold nasm ninja-build \
+            openssh pkgconf rsync sdl2-compat-devel spirv-tools texinfo \
+            vulkan-headers vulkan-loader-devel
+      - name: Install gcc
+        if: ${{ matrix.compiler == 'gcc-snapshot' }}
+        run: |
           dnf -y copr enable jwakely/gcc-latest
-          dnf -y install gcc-latest glibc-devel binutils diffutils texinfo libdrm-devel git sdl2-compat-devel vulkan-headers glslang-devel spirv-tools libxml2 make mold nasm openssh pkgconf rsync zlib-devel
+          dnf -y install --best gcc-latest
           echo "/opt/gcc-latest/bin" >> $GITHUB_PATH
           echo "LD_RUN_PATH=/opt/gcc-latest/lib" >> $GITHUB_ENV
+      - name: Install clang
+        if: ${{ matrix.compiler == 'clang' }}
+        run: |
+          dnf -y copr enable @fedora-llvm-team/llvm-snapshots
+          dnf -y install --best clang lld llvm compiler-rt
+      - name: Upgrade packages
+        run: |
+          dnf -y upgrade --best --refresh
       - uses: actions/checkout@v6
       - name: Checkout FFmpeg
         uses: actions/checkout@v6
@@ -730,10 +582,27 @@ jobs:
         run: |
           # Workaround for https://github.com/madler/zlib/issues/787#issuecomment-3094568653
           sed -i 's/#if HAVE_UNISTD_H-0/#if defined(HAVE_UNISTD_H) \&\& HAVE_UNISTD_H/' zconf.h
-          mkdir build
-          cd build
-          ../configure --prefix=${{ runner.temp }}/install
-          make -j`nproc` install
+          CMAKE_ARGS=(
+            -GNinja -Bbuild
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo
+            -DCMAKE_C_COMPILER=${{ matrix.compiler_bin }}
+            -DZLIB_BUILD_TESTING=OFF
+            -DZLIB_BUILD_SHARED=OFF
+          )
+
+          if [ "${{ matrix.msan }}" = "true" ]; then
+            CMAKE_ARGS+=(-DCMAKE_C_FLAGS=-fsanitize=memory\ -fsanitize-memory-track-origins\ -fno-omit-frame-pointer)
+          fi
+
+          cmake "${CMAKE_ARGS[@]}"
+          ninja -C build install
+      - name: Download Intel SDE
+        if: ${{ matrix.sde }}
+        working-directory: ${{ runner.temp }}
+        run: |
+          curl -O https://downloadmirror.intel.com/859732/sde-external-9.58.0-2025-06-16-lin.tar.xz
+          tar xvf sde-external-9.58.0-2025-06-16-lin.tar.xz
+          echo "SDE_PATH=${{ runner.temp }}/sde-external-9.58.0-2025-06-16-lin" >> $GITHUB_ENV
       - name: Restore Cached FATE Samples
         id: cache
         uses: actions/cache/restore@v4
@@ -773,7 +642,11 @@ jobs:
       - name: Build
         id: build
         run: |
-          gcc --version
+          ${{ matrix.compiler_bin }} --version
+          if [ "${{ matrix.sde }}" = "true" ]; then
+            export PATH="$SDE_PATH:$PATH"
+            echo 0 | tee /proc/sys/kernel/yama/ptrace_scope
+          fi
           cd .github/fate/src
           export LD_LIBRARY_PATH=${{ runner.temp }}/install/lib
           export PKG_CONFIG_PATH=${{ runner.temp }}/install/lib/pkgconfig
