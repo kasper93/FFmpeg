@@ -436,7 +436,6 @@ jobs:
         if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'clangarm64' }}
         run: |
           pacboy --noconfirm -S jack2
-      - uses: actions/checkout@v6
       - name: Checkout FFmpeg
         uses: actions/checkout@v6
         with:
