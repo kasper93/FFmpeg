@@ -542,6 +542,9 @@ jobs:
       - name: Print CPU Info
         run: |
           cat /proc/cpuinfo
+      - name: Disable weak dependencies
+        run: |
+          echo "install_weak_deps=False" >> /etc/dnf/dnf.conf
       - name: Install dependencies
         run: |
           dnf -y install --best \
