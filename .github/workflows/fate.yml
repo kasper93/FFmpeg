@@ -548,7 +548,7 @@ jobs:
       - name: Install dependencies
         run: |
           dnf -y install --best \
-            binutils cmake diffutils git glibc-devel glibc-gconv-extra glslang-devel \
+            AMF-devel binutils cmake diffutils git glibc-devel glibc-gconv-extra glslang-devel \
             libdrm-devel libshaderc-devel libxml2 make mold nasm ninja-build \
             openssh pkgconf rsync sdl2-compat-devel spirv-tools texinfo \
             vulkan-headers vulkan-loader-devel
