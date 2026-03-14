@@ -225,7 +225,7 @@ jobs:
           cp -force ${{ runner.temp }}\install\lib\zs.lib ${{ runner.temp }}\install\lib\z.lib
       - name: Restore Cached FATE Samples
         id: cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .github/fate/samples
           key: fate-samples-dummy
@@ -239,7 +239,7 @@ jobs:
           echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .github/fate/samples
           key: fate-samples-${{ steps.samples.outputs.hash }}
@@ -444,7 +444,7 @@ jobs:
           path: .github/fate/src
       - name: Restore Cached FATE Samples
         id: cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .github/fate/samples
           key: fate-samples-dummy
@@ -457,7 +457,7 @@ jobs:
           echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .github/fate/samples
           key: fate-samples-${{ steps.samples.outputs.hash }}
@@ -614,7 +614,7 @@ jobs:
           echo "SDE_PATH=${{ runner.temp }}/sde-external-9.58.0-2025-06-16-lin" >> $GITHUB_ENV
       - name: Restore Cached FATE Samples
         id: cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .github/fate/samples
           key: fate-samples-dummy
@@ -627,7 +627,7 @@ jobs:
           echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .github/fate/samples
           key: fate-samples-${{ steps.samples.outputs.hash }}
@@ -743,7 +743,7 @@ jobs:
           make -j`nproc` install
       - name: Restore Cached FATE Samples
         id: cache
-        uses: actions/cache/restore@v4
+        uses: actions/cache/restore@v5
         with:
           path: .github/fate/samples
           key: fate-samples-dummy
@@ -756,7 +756,7 @@ jobs:
           echo "hash=$(find .github/fate/samples -type f -printf "%P %s %T@\n" | sort | sha256sum | cut -d' ' -f1)" >> $GITHUB_OUTPUT
       - name: Cache FATE Samples
         if: ${{ format('fate-samples-{0}', steps.samples.outputs.hash) != steps.cache.outputs.cache-matched-key }}
-        uses: actions/cache/save@v4
+        uses: actions/cache/save@v5
         with:
           path: .github/fate/samples
           key: fate-samples-${{ steps.samples.outputs.hash }}
