@@ -1,10 +1,50 @@
 name: fate
 
 on:
+  schedule:
+    - cron: '19 * * * *'
   workflow_dispatch:
 
 jobs:
+  check:
+    name: Check for new commits
+    runs-on: ubuntu-latest
+    outputs:
+      has_changes: ${{ github.event_name == 'workflow_dispatch' || steps.check.outputs.has_changes }}
+    steps:
+      - name: Get latest FFmpeg commit
+        id: latest
+        run: |
+          COMMIT=$(git ls-remote https://github.com/FFmpeg/FFmpeg HEAD | cut -f1)
+          echo "commit=$COMMIT" >> $GITHUB_OUTPUT
+      - name: Restore last tested commit
+        id: cache
+        uses: actions/cache/restore@v5
+        with:
+          path: /tmp/ffmpeg-last-commit
+          key: ffmpeg-last-tested-${{ steps.latest.outputs.commit }}
+      - name: Check for changes
+        id: check
+        run: |
+          PREV=$(cat /tmp/ffmpeg-last-commit || echo "")
+          if [ "${{ steps.cache.outputs.cache-hit }}" = "true" ]; then
+            echo "No new commits (latest: ${{ steps.latest.outputs.commit }})"
+            echo "has_changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "New commits: $PREV..${{ steps.latest.outputs.commit }}"
+            echo "has_changes=true" >> $GITHUB_OUTPUT
+            echo "${{ steps.latest.outputs.commit }}" > /tmp/ffmpeg-last-commit
+          fi
+      - name: Save last tested commit
+        if: steps.check.outputs.has_changes == 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: /tmp/ffmpeg-last-commit
+          key: ffmpeg-last-tested-${{ steps.latest.outputs.commit }}
+
   win32:
+    needs: check
+    if: needs.check.outputs.has_changes == 'true'
     name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -311,6 +351,8 @@ jobs:
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   msys2:
+    needs: check
+    if: needs.check.outputs.has_changes == 'true'
     name: msys2-${{ matrix.sys }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -510,6 +552,8 @@ jobs:
           dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
 
   fedora:
+    needs: check
+    if: needs.check.outputs.has_changes == 'true'
     name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}
     runs-on: ${{ matrix.os }}
     strategy:
@@ -687,6 +731,8 @@ jobs:
           readelf -r .github/fate/install/bin/ffmpeg
 
   chimera:
+    needs: check
+    if: needs.check.outputs.has_changes == 'true'
     name: ${{ matrix.arch }}-${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
     strategy:
