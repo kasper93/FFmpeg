@@ -47,6 +47,8 @@ jobs:
     if: needs.check.outputs.has_changes == 'true'
     name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
     runs-on: ${{ matrix.os }}
+    concurrency:
+      group: win32-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.asan }}-${{ matrix.shared }}-${{ matrix.debug }}-${{ matrix.assert }}-${{ matrix.cet }}-${{ matrix.asm }}
     strategy:
       fail-fast: false
       matrix:
@@ -355,6 +357,8 @@ jobs:
     if: needs.check.outputs.has_changes == 'true'
     name: msys2-${{ matrix.sys }}
     runs-on: ${{ matrix.os }}
+    concurrency:
+      group: msys2-${{ matrix.sys }}
     strategy:
       fail-fast: false
       matrix:
@@ -556,6 +560,8 @@ jobs:
     if: needs.check.outputs.has_changes == 'true'
     name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}
     runs-on: ${{ matrix.os }}
+    concurrency:
+      group: fedora-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.asan }}-${{ matrix.msan }}-${{ matrix.shared }}-${{ matrix.cet }}-${{ matrix.sde }}-${{ matrix.asm }}-${{ matrix.var_init }}-${{ matrix.short-enums }}
     strategy:
       fail-fast: false
       matrix:
@@ -735,6 +741,8 @@ jobs:
     if: needs.check.outputs.has_changes == 'true'
     name: ${{ matrix.arch }}-${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
+    concurrency:
+      group: chimera-${{ matrix.arch }}-${{ matrix.compiler }}
     strategy:
       fail-fast: false
       matrix:
