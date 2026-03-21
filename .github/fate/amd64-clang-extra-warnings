@@ -1,0 +1,12 @@
+slot=amd64-clang-extra-warnings
+comment="Clang (extra-warnings)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+skip_clean=yes
+arch=amd64
+cc=clang
+cxx=clang++
+extra_conf="--enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree --enable-extra-warnings --enable-vulkan --enable-libshaderc"
