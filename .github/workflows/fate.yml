@@ -475,7 +475,7 @@ jobs:
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' }}
         run: |
-          pacboy --noconfirm -S aribb24 directx-headers fdk-aac libaribcaption liblc3 liblc3 libplacebo librist librsvg opencl-headers opencv rav1e rubberband shaderc shine snappy svt-av1 tesseract-ocr vmaf whisper.cpp xevd xeve
+          pacboy --noconfirm -S aribb24 directx-headers fdk-aac libaribcaption liblc3 liblc3 libplacebo librist librsvg opencl-headers opencv rav1e rubberband shaderc shine snappy spirv-headers svt-av1 tesseract-ocr vmaf whisper.cpp xevd xeve
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'clangarm64' }}
         run: |
@@ -599,7 +599,7 @@ jobs:
           dnf -y install --best \
             AMF-devel binutils cmake diffutils git glibc-devel glibc-gconv-extra glslang-devel \
             libdrm-devel libshaderc-devel libxml2 make mold nasm ninja-build \
-            openssh pkgconf rsync sdl2-compat-devel spirv-tools texinfo \
+            openssh pkgconf rsync sdl2-compat-devel spirv-headers-devel spirv-tools texinfo \
             vulkan-headers vulkan-loader-devel
       - name: Install gcc
         if: ${{ matrix.compiler == 'gcc-snapshot' }}
