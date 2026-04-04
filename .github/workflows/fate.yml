@@ -366,17 +366,15 @@ jobs:
           - sys: clang64
             os: windows-2025-vs2026
             arch: amd64
-          # Enable once https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122793 is fixed
-          # - sys: "mingw64"
-          #   os: windows-2025-vs2026
-          #   arch: amd64
+          - sys: "mingw64"
+            os: windows-2025-vs2026
+            arch: amd64
           - sys: "mingw32"
             os: windows-2025-vs2026
             arch: amd64
-          # Enable once https://gcc.gnu.org/bugzilla/show_bug.cgi?id=122793 is fixed
-          # - sys: "ucrt64"
-          #   os: windows-2025-vs2026
-          #   arch: amd64
+          - sys: "ucrt64"
+            os: windows-2025-vs2026
+            arch: amd64
           - sys: "clangarm64"
             os: "windows-11-arm"
             arch: arm64
