@@ -231,8 +231,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: madler/zlib
-          # Switch to stable release when this is available https://github.com/madler/zlib/issues/787
-          ref: develop
+          ref: v1.3.2
           path: zlib
       - name: Build zlib
         shell: pwsh
@@ -635,7 +634,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: madler/zlib
-          ref: v1.3.1.2
+          ref: v1.3.2
           path: zlib
       - name: Build zlib
         working-directory: zlib
@@ -785,7 +784,7 @@ jobs:
         uses: actions/checkout@v6
         with:
           repository: madler/zlib
-          ref: v1.3.1.2
+          ref: v1.3.2
           path: zlib
       - name: Build zlib
         working-directory: zlib
