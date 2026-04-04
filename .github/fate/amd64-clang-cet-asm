@@ -13,4 +13,4 @@ ld=clang
 extra_cflags="-fcf-protection=full"
 extra_cxxflags="-fcf-protection=full"
 extra_ldflags="-fuse-ld=lld"
-extra_conf="--ar=llvm-ar --cxx=clang++ --nm=llvm-nm --strip=llvm-strip --ranlib=llvm-ranlib --enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree --disable-vulkan"
+extra_conf="--toolchain=llvm --enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree --disable-vulkan"

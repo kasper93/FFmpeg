@@ -7,10 +7,7 @@ samples="../samples"
 makeopts=-j`nproc`
 skip_clean=yes
 arch=arm64
-as=clang
-cc=clang
-ld=clang
 extra_cflags="-mbranch-protection=standard"
 extra_cxxflags="-mbranch-protection=standard"
 extra_ldflags="-fuse-ld=lld"
-extra_conf="--ar=llvm-ar --cxx=clang++ --nm=llvm-nm --strip=llvm-strip --ranlib=llvm-ranlib --enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree --disable-vulkan"
+extra_conf="--toolchain=llvm --enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree --disable-vulkan"
