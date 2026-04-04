@@ -576,6 +576,7 @@ jobs:
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false, extra-warnings: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: true  }
           - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
@@ -584,6 +585,7 @@ jobs:
           - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false, extra-warnings: false }
     container:
       image: fedora:rawhide
+      options: --privileged
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}${{ matrix.extra-warnings && '-extra-warnings' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
@@ -597,7 +599,7 @@ jobs:
       - name: Install dependencies
         run: |
           dnf -y install --best \
-            AMF-devel binutils cmake diffutils git glibc-devel glibc-gconv-extra glslang-devel \
+            AMF-devel binutils cmake diffutils git glibc-devel glibc-gconv-extra glibc-static glslang-devel \
             libdrm-devel libshaderc-devel libxml2 make mold nasm ninja-build \
             openssh pkgconf rsync sdl2-compat-devel spirv-headers-devel spirv-tools texinfo \
             vulkan-headers vulkan-loader-devel
