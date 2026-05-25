@@ -311,7 +311,7 @@ jobs:
           $env:PATH = ($env:PATH -split ';' | Where-Object { $_ -ne 'C:\Program Files\LLVM\bin' -and `
                                                              $_ -ne 'C:\Program Files\CMake\bin' -and `
                                                              $_ -ne 'C:\Strawberry\c\bin' }) -join ';'
-          $env:PATH += ";$PWD\gas-preprocessor"
+          $env:PATH += ";$PWD\gas-preprocessor;$env:VULKAN_ROOT\Bin"
           $env:LIB += ";$env:VULKAN_ROOT\Lib"
           $env:INCLUDE += ";$env:VULKAN_ROOT\Include"
 
