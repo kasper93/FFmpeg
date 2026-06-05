@@ -1,0 +1,12 @@
+slot=amd64-clang-sde-asm-ast
+comment="Clang (AVX/SSE transitions)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+skip_clean=yes
+arch=amd64
+target_exec="$GITHUB_WORKSPACE/.github/scripts/sde-ast-wrap"
+extra_ldflags="-fuse-ld=lld -static"
+extra_conf="--toolchain=llvm --enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree --disable-vulkan"
