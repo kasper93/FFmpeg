@@ -9,5 +9,5 @@ skip_clean=yes
 arch=arm64
 cc=gcc
 cxx=g++
-# extra_ldflags="-fuse-ld=mold"
+extra_ldflags="-fuse-ld=mold"
 extra_conf="--disable-stripping --enable-version3 --enable-nonfree --enable-vulkan --enable-libglslang"
