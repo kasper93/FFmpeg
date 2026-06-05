@@ -658,10 +658,14 @@ jobs:
       - name: Download Intel SDE
         if: ${{ matrix.sde }}
         working-directory: ${{ runner.temp }}
+        env:
+          SDE_VERSION: sde-external-10.8.0-2026-03-15-lin
+          SDE_SHA256: 50b320cd226acef7a491f5b321fc1be3c3c7984f9e27a456e64894b5b0979dd3
         run: |
-          curl -O https://downloadmirror.intel.com/859732/sde-external-9.58.0-2025-06-16-lin.tar.xz
-          tar xvf sde-external-9.58.0-2025-06-16-lin.tar.xz
-          echo "SDE_PATH=${{ runner.temp }}/sde-external-9.58.0-2025-06-16-lin" >> $GITHUB_ENV
+          curl -fLO "https://ci-mirrors.rust-lang.org/$SDE_VERSION.tar.xz"
+          echo "$SDE_SHA256  $SDE_VERSION.tar.xz" | sha256sum -c -
+          tar xvf "$SDE_VERSION.tar.xz"
+          echo "SDE_PATH=${{ runner.temp }}/$SDE_VERSION" >> $GITHUB_ENV
       - name: Restore Cached FATE Samples
         id: cache
         uses: actions/cache/restore@v5
