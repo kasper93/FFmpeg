@@ -403,7 +403,6 @@ jobs:
             ca-certificates
             cairo
             cc
-            chromaprint
             dav1d
             dlfcn
             ffnvcodec-headers
@@ -421,15 +420,10 @@ jobs:
             lcms2
             libass
             libbluray
-            libbs2b
             libcaca
-            libcdio-paranoia
-            libdvdnav
             libexif
-            libgcrypt
             libgme
             libiconv
-            libilbc
             libjpeg-turbo
             libjxl
             libmodplug
@@ -474,7 +468,7 @@ jobs:
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' }}
         run: |
-          pacboy --noconfirm -S aribb24 directx-headers fdk-aac libaribcaption liblc3 liblc3 libplacebo librist librsvg opencl-headers opencv rav1e rubberband shaderc shine snappy spirv-headers svt-av1 tesseract-ocr vmaf whisper.cpp xevd xeve
+          pacboy --noconfirm -S aribb24 chromaprint directx-headers fdk-aac libaribcaption libbs2b libcdio-paranoia libdvdnav libgcrypt libilbc liblc3 liblc3 libplacebo librist librsvg opencl-headers opencv rav1e rubberband shaderc shine snappy spirv-headers svt-av1 tesseract-ocr vmaf whisper.cpp xevd xeve
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'clangarm64' }}
         run: |
