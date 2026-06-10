@@ -1,0 +1,10 @@
+slot=amd64-clang-std
+comment="Clang (c23)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+skip_clean=yes
+arch=amd64
+extra_conf="--toolchain=llvm --stdc=c23 --stdcxx=c++23 --enable-debug=lldb --disable-stripping --enable-version3 --enable-nonfree"
