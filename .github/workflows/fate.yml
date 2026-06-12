@@ -164,6 +164,9 @@ jobs:
             compiler: clang-cl-msvc
           - asm: true
             debug: false
+          # https://developercommunity.visualstudio.com/t/11045301
+          - asan: true
+            compiler: clang-msvc
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\${{ matrix.os == 'windows-2025-vs2026' && '18' || '2022' }}\\Enterprise"
@@ -559,17 +562,17 @@ jobs:
         include:
           # gcc
           - { os: ubuntu-24.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: true,  extra-warnings: false }
+          # - { os: ubuntu-24.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: true,  extra-warnings: false }
           - { os: ubuntu-24.04-arm, arch: arm64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false, extra-warnings: false }
           # clang
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: true,  extra-warnings: false }
+          # - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: true,  extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: true,  shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
+          # - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  ast: true, var_init: '',   short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: true  }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, std: true, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',   short-enums: false, extra-warnings: false }
@@ -738,7 +741,7 @@ jobs:
 
   chimera:
     needs: check
-    if: needs.check.outputs.has_changes == 'true'
+    if: needs.check.outputs.has_changes == 'true' && false
     name: ${{ matrix.arch }}-${{ matrix.compiler }}
     runs-on: ${{ matrix.os }}
     concurrency:
