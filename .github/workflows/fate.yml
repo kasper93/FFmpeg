@@ -605,9 +605,6 @@ jobs:
         if: ${{ matrix.compiler == 'gcc-snapshot' }}
         run: |
           dnf -y copr enable jwakely/gcc-latest
-          # DNF hardcodes skip_if_unavailable=True for copr repos, we don't want that.
-          # https://github.com/rpm-software-management/dnf5/blob/dfef396c29d585bf8696a0c9f8fc9b3f7e2f68c2/dnf5-plugins/copr_plugin/copr_repo.hpp#L99
-          sed -i 's/skip_if_unavailable=True/skip_if_unavailable=False/g' /etc/yum.repos.d/_copr:*.repo
           dnf -y install --best gcc-latest
           echo "/opt/gcc-latest/bin" >> $GITHUB_PATH
           echo "LD_RUN_PATH=/opt/gcc-latest/lib" >> $GITHUB_ENV
@@ -615,9 +612,6 @@ jobs:
         if: ${{ matrix.compiler == 'clang' }}
         run: |
           dnf -y copr enable @fedora-llvm-team/llvm-snapshots
-          # DNF hardcodes skip_if_unavailable=True for copr repos, we don't want that.
-          # https://github.com/rpm-software-management/dnf5/blob/dfef396c29d585bf8696a0c9f8fc9b3f7e2f68c2/dnf5-plugins/copr_plugin/copr_repo.hpp#L99
-          sed -i 's/skip_if_unavailable=True/skip_if_unavailable=False/g' /etc/yum.repos.d/_copr:*.repo
           dnf -y install --best clang lld llvm compiler-rt
       - name: Upgrade packages
         run: |
