@@ -217,21 +217,21 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Checkout FFmpeg
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
           path: .github/fate/src
       - name: Checkout gas-preprocessor
         if: ${{ matrix.compiler == 'msvc' || matrix.compiler == 'clang-cl-msvc' }}
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: ffmpeg/gas-preprocessor
           path: gas-preprocessor
       - name: Checkout zlib
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: madler/zlib
           ref: v1.3.2
@@ -393,7 +393,7 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: msys2/setup-msys2@v2
         with:
           msystem: ${{ matrix.sys }}
@@ -477,7 +477,7 @@ jobs:
         run: |
           pacboy --noconfirm -S jack2
       - name: Checkout FFmpeg
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
@@ -616,15 +616,15 @@ jobs:
       - name: Upgrade packages
         run: |
           dnf -y upgrade --best --refresh
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Checkout FFmpeg
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
           path: .github/fate/src
       - name: Checkout zlib
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: madler/zlib
           ref: v1.3.2
@@ -770,15 +770,15 @@ jobs:
           # Needed for actions/checkout.
           sed '/^ID="/s/chimera/alpine/' /etc/os-release > /tmp/os-release
           mv /tmp/os-release /etc/os-release
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - name: Checkout FFmpeg
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           fetch-depth: 0 # For fate version string
           repository: ffmpeg/ffmpeg
           path: .github/fate/src
       - name: Checkout zlib
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           repository: madler/zlib
           ref: v1.3.2
