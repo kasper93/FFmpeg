@@ -454,10 +454,7 @@ jobs:
             speex
             srt
             texinfo
-            twolame
-            vapoursynth
             vid.stab
-            vo-amrwbenc
             vulkan
             vulkan-headers
             x265
@@ -471,7 +468,39 @@ jobs:
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' }}
         run: |
-          pacboy --noconfirm -S aribb24 chromaprint directx-headers fdk-aac libaribcaption libbs2b libcdio-paranoia libdvdnav libgcrypt libilbc liblc3 liblc3 libplacebo librist librsvg opencl-headers opencv rav1e rubberband shaderc shine snappy spirv-headers svt-av1 tesseract-ocr vmaf whisper.cpp xevd xeve
+          pacboy --noconfirm -S \
+            aribb24 \
+            chromaprint \
+            directx-headers \
+            fdk-aac \
+            libaribcaption \
+            libbs2b \
+            libcdio-paranoia \
+            libdvdnav \
+            libgcrypt \
+            libilbc \
+            liblc3 \
+            liblc3 \
+            libplacebo \
+            librist \
+            librsvg \
+            opencl-headers \
+            opencv \
+            rav1e \
+            rubberband \
+            shaderc \
+            shine \
+            snappy \
+            spirv-headers \
+            svt-av1 \
+            tesseract-ocr \
+            twolame \
+            vapoursynth \
+            vmaf \
+            vo-amrwbenc \
+            whisper.cpp \
+            xevd \
+            xeve
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'clangarm64' }}
         run: |
