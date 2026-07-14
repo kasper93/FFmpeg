@@ -9,4 +9,4 @@ skip_clean=yes
 arch=arm64
 extra_cflags="-fsanitize=address -MD"
 extra_cxxflags="-fsanitize=address -MD"
-extra_conf="--toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree --enable-vulkan --enable-libglslang"
+extra_conf="--toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree --enable-vulkan"

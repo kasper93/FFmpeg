@@ -8,4 +8,4 @@ makeopts=-j`nproc`
 skip_clean=yes
 arch=arm64
 extra_ldflags="-fuse-ld=lld"
-extra_conf="--toolchain=llvm-msan --enable-debug=lldb --disable-stripping --disable-memory-poisoning --disable-asm --enable-version3 --enable-nonfree --enable-vulkan --enable-libshaderc"
+extra_conf="--toolchain=llvm-msan --enable-debug=lldb --disable-stripping --disable-memory-poisoning --disable-asm --enable-version3 --enable-nonfree --enable-vulkan"

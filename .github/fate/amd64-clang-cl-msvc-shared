@@ -11,4 +11,4 @@ cc=clang-cl
 cxx=clang-cl
 extra_cflags="-MD"
 extra_cxxflags="-MD"
-extra_conf="--toolchain=msvc --disable-debug --target-os=win64 --enable-shared --enable-w32threads --enable-version3 --enable-nonfree --enable-vulkan --enable-libglslang"
+extra_conf="--toolchain=msvc --disable-debug --target-os=win64 --enable-shared --enable-w32threads --enable-version3 --enable-nonfree --enable-vulkan"

@@ -9,4 +9,4 @@ skip_clean=yes
 arch=amd64
 cc=icx
 cxx=icpx
-extra_conf="--enable-version3 --enable-nonfree --enable-vulkan --enable-libshaderc"
+extra_conf="--enable-version3 --enable-nonfree --enable-vulkan"
