@@ -627,9 +627,13 @@ jobs:
         run: |
           dnf -y install --best \
             AMF-devel binutils cmake diffutils git glibc-devel glibc-gconv-extra glibc-static glslang-devel \
-            libdrm-devel libshaderc-devel libxml2 make mold nasm ninja-build \
+            libdrm-devel libshaderc-devel libxml2 make nasm ninja-build \
             openssh pkgconf rsync sdl2-compat-devel spirv-headers-devel spirv-tools texinfo \
             vulkan-headers vulkan-loader-devel
+      - name: Set env
+        run: |
+          echo "LD_LIBRARY_PATH=${{ runner.temp }}/install/lib" >> $GITHUB_ENV
+          echo "PKG_CONFIG_PATH=${{ runner.temp }}/install/lib/pkgconfig" >> $GITHUB_ENV
       - name: Install gcc
         if: ${{ matrix.compiler == 'gcc-snapshot' }}
         run: |
@@ -637,6 +641,7 @@ jobs:
           dnf -y install --best gcc-latest
           echo "/opt/gcc-latest/bin" >> $GITHUB_PATH
           echo "LD_RUN_PATH=/opt/gcc-latest/lib" >> $GITHUB_ENV
+          echo "LD_LIBRARY_PATH=$LD_LIBRARY_PATH:/opt/gcc-latest/lib64:/opt/gcc-latest/lib" >> $GITHUB_ENV
       - name: Install clang
         if: ${{ matrix.compiler == 'clang' }}
         run: |
@@ -676,6 +681,25 @@ jobs:
           fi
 
           cmake "${CMAKE_ARGS[@]}"
+          ninja -C build install
+      - name: Checkout mold
+        if: ${{ matrix.compiler == 'gcc-snapshot' }}
+        uses: actions/checkout@v7
+        with:
+          repository: rui314/mold
+          path: mold
+          submodules: true
+      - name: Build mold
+        if: ${{ matrix.compiler == 'gcc-snapshot' }}
+        working-directory: mold
+        run: |
+          # arm_neon.h breaks when included inside xxhash.h's extern "C" block
+          # pre-include it outside the block
+          sed -i '1i #ifdef __ARM_NEON\n#include <arm_neon.h>\n#endif' third-party/xxhash/xxhash.h
+          cmake -GNinja -Bbuild \
+            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+            -DMOLD_USE_MIMALLOC=OFF \
+            -DBUILD_TESTING=OFF
           ninja -C build install
       - name: Download Intel SDE
         if: ${{ matrix.sde }}
@@ -733,8 +757,6 @@ jobs:
             echo 0 | tee /proc/sys/kernel/yama/ptrace_scope
           fi
           cd .github/fate/src
-          export LD_LIBRARY_PATH=${{ runner.temp }}/install/lib
-          export PKG_CONFIG_PATH=${{ runner.temp }}/install/lib/pkgconfig
           ./tests/fate.sh ../${{ env.CONF }}
       - name: Print version
         if: always()
