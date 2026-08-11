@@ -474,7 +474,6 @@ jobs:
             openal \
             opencl-headers \
             opencore-amr \
-            opencv \
             openh264 \
             openjpeg2 \
             rav1e \
