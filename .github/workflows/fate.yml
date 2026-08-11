@@ -400,68 +400,28 @@ jobs:
           update: true
           install: git rsync make diffutils
           pacboy: >-
-            amf-headers
-            aom
             bzip2
             ca-certificates
-            cairo
             cc
-            dav1d
-            dlfcn
-            ffnvcodec-headers
-            fontconfig
             freetype
-            frei0r-plugins
-            fribidi
             gmp
             gnutls
-            gsm
             harfbuzz
-            kvazaar
-            ladspa-sdk
             lame
-            lcms2
-            libass
-            libbluray
-            libcaca
-            libexif
-            libgme
             libiconv
             libjpeg-turbo
-            libjxl
-            libmodplug
-            libmysofa
-            libopenmpt
-            libsoxr
-            libssh
-            libtheora
             libva
             libvorbis
-            libvpl
-            libvpx
             libwebp
-            libx264
             libxml2
             nasm
-            openal
-            opencore-amr
-            openh264
-            openjpeg2
             opus
             pkgconf
-            rtmpdump
             SDL2
-            speex
-            srt
             texinfo
-            vid.stab
             vulkan
             vulkan-headers
-            x265
-            xvidcore
-            zimg
             zlib
-            zvbi
       - name: Print CPU Info
         run: |
           cat /proc/cpuinfo
@@ -469,38 +429,77 @@ jobs:
         if: ${{ matrix.sys != 'mingw32' }}
         run: |
           pacboy --noconfirm -S \
+            amf-headers \
+            aom \
             aribb24 \
+            cairo \
             chromaprint \
+            dav1d \
             directx-headers \
+            dlfcn \
             fdk-aac \
+            ffnvcodec-headers \
+            fontconfig \
+            frei0r-plugins \
+            fribidi \
+            gsm \
+            kvazaar \
+            ladspa-sdk \
+            lcms2 \
             libaribcaption \
+            libass \
+            libbluray \
             libbs2b \
+            libcaca \
             libcdio-paranoia \
             libdvdnav \
+            libexif \
             libgcrypt \
+            libgme \
             libilbc \
+            libjxl \
             liblc3 \
-            liblc3 \
+            libmodplug \
+            libmysofa \
+            libopenmpt \
             libplacebo \
             librist \
             librsvg \
+            libsoxr \
+            libssh \
+            libtheora \
+            libvpl \
+            libvpx \
+            libx264 \
+            openal \
             opencl-headers \
+            opencore-amr \
             opencv \
+            openh264 \
+            openjpeg2 \
             rav1e \
+            rtmpdump \
             rubberband \
             shaderc \
             shine \
             snappy \
+            speex \
             spirv-headers \
+            srt \
             svt-av1 \
             tesseract-ocr \
             twolame \
             vapoursynth \
+            vid.stab \
             vmaf \
             vo-amrwbenc \
             whisper.cpp \
+            x265 \
             xevd \
-            xeve
+            xeve \
+            xvidcore \
+            zimg \
+            zvbi
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'clangarm64' }}
         run: |
