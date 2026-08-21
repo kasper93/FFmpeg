@@ -45,10 +45,10 @@ jobs:
   win32:
     needs: check
     if: needs.check.outputs.has_changes == 'true'
-    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.c11atomics && '-c11atomics' || '' }}
     runs-on: ${{ matrix.os }}
     concurrency:
-      group: win32-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.asan }}-${{ matrix.shared }}-${{ matrix.debug }}-${{ matrix.assert }}-${{ matrix.cet }}-${{ matrix.asm }}
+      group: win32-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.asan }}-${{ matrix.shared }}-${{ matrix.debug }}-${{ matrix.assert }}-${{ matrix.cet }}-${{ matrix.asm }}-${{ matrix.c11atomics }}
     strategy:
       fail-fast: false
       matrix:
@@ -61,6 +61,7 @@ jobs:
         debug: [false, true]
         assert: [false, true]
         cet: [false, true]
+        c11atomics: [false, true]
         include:
           - os: windows-2025-vs2026
             arch: x86_32
@@ -167,8 +168,27 @@ jobs:
           # https://developercommunity.visualstudio.com/t/11045301
           - asan: true
             compiler: clang-msvc
+          - c11atomics: true
+            compiler: clang-msvc
+          - c11atomics: true
+            compiler: clang-cl-msvc
+          - c11atomics: true
+            compiler: icx-win
+          - c11atomics: true
+            arch: amd64
+            asan: false
+          - c11atomics: true
+            shared: true
+          - c11atomics: true
+            debug: true
+          - c11atomics: true
+            assert: true
+          - c11atomics: true
+            cet: true
+          - c11atomics: true
+            asm: true
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.c11atomics && '-c11atomics' || '' }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\${{ matrix.os == 'windows-2025-vs2026' && '18' || '2022' }}\\Enterprise"
       MSYSTEM: MSYS
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
