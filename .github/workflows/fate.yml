@@ -483,7 +483,6 @@ jobs:
             libmysofa \
             libopenmpt \
             libplacebo \
-            librist \
             librsvg \
             libsoxr \
             libssh \
@@ -519,6 +518,10 @@ jobs:
             xvidcore \
             zimg \
             zvbi
+      - name: Install dependencies
+        if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'mingw64' }}
+        run: |
+          pacboy --noconfirm -S librist
       - name: Install dependencies
         if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'clangarm64' }}
         run: |
