@@ -645,7 +645,7 @@ jobs:
         run: |
           dnf -y install --best \
             AMF-devel binutils cmake diffutils git glibc-devel glibc-gconv-extra glibc-static glslang-devel \
-            libdrm-devel libshaderc-devel libxml2-devel make nasm ninja-build \
+            libdrm-devel libshaderc-devel libxml2-devel libzstd-devel make nasm ninja-build \
             openssh pkgconf rsync sdl2-compat-devel spirv-headers-devel spirv-tools texinfo \
             vulkan-headers vulkan-loader-devel
       - name: Set env
