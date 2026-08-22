@@ -407,6 +407,7 @@ jobs:
       CONF: msys2-${{ matrix.sys }}
       VS: "C:\\Program Files\\Microsoft Visual Studio\\${{ matrix.os == 'windows-2025-vs2026' && '18' || '2022' }}\\Enterprise"
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
+      PERL_BADLANG: 0
     steps:
       - name: Disable autocrlf
         shell: pwsh
