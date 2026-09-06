@@ -600,10 +600,10 @@ jobs:
   fedora:
     needs: check
     if: needs.check.outputs.has_changes == 'true'
-    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.std && '-std' || '' }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.ast && '-ast' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}${{ matrix.extra-warnings && '-extra-warnings' || '' }}
+    name: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.std && '-std' || '' }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.ast && '-ast' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}${{ matrix.extra-warnings && '-extra-warnings' || '' }}${{ matrix.dummy-atomics && '-dummy-atomics' || '' }}
     runs-on: ${{ matrix.os }}
     concurrency:
-      group: fedora-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.std }}-${{ matrix.asan }}-${{ matrix.msan }}-${{ matrix.shared }}-${{ matrix.cet }}-${{ matrix.sde }}-${{ matrix.asm }}-${{ matrix.ast }}-${{ matrix.var_init }}-${{ matrix.short-enums }}-${{ matrix.extra-warnings }}
+      group: fedora-${{ matrix.arch }}-${{ matrix.compiler }}-${{ matrix.std }}-${{ matrix.asan }}-${{ matrix.msan }}-${{ matrix.shared }}-${{ matrix.cet }}-${{ matrix.sde }}-${{ matrix.asm }}-${{ matrix.ast }}-${{ matrix.var_init }}-${{ matrix.short-enums }}-${{ matrix.extra-warnings }}-${{ matrix.dummy-atomics }}
     strategy:
       fail-fast: false
       matrix:
@@ -624,6 +624,7 @@ jobs:
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  ast: true, var_init: '',   short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: true  }
           - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, std: true, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',   short-enums: false, extra-warnings: false }
+          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false, dummy-atomics: true }
           - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
           - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false, extra-warnings: false }
@@ -633,7 +634,7 @@ jobs:
       image: fedora:rawhide
       options: --privileged
     env:
-      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.std && '-std' || '' }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.ast && '-ast' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}${{ matrix.extra-warnings && '-extra-warnings' || '' }}
+      CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.std && '-std' || '' }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.ast && '-ast' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}${{ matrix.extra-warnings && '-extra-warnings' || '' }}${{ matrix.dummy-atomics && '-dummy-atomics' || '' }}
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Print CPU Info

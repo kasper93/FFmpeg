@@ -1,0 +1,12 @@
+slot=amd64-clang-asan-dummy-atomics
+comment="Clang ASAN/UBSAN (dummy atomics, no threads)"
+fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
+fate_targets="fate fate-build"
+repo="file://$PWD"
+samples="../samples"
+makeopts=-j`nproc`
+skip_clean=yes
+arch=amd64
+extra_cflags="-fno-sanitize-recover=undefined -I$PWD -I$PWD/compat/atomics -I$PWD/compat/atomics/dummy"
+extra_ldflags="-fuse-ld=lld -fno-sanitize-recover=undefined"
+extra_conf="--toolchain=llvm-asan-ubsan --disable-pthreads --enable-debug=lldb --disable-stripping --disable-asm --enable-version3 --enable-nonfree"
