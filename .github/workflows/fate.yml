@@ -675,7 +675,7 @@ jobs:
         run: |
           dnf -y install --best \
             AMF-devel binutils cmake diffutils git glibc-devel glibc-gconv-extra glibc-static glslang-devel \
-            libdrm-devel libshaderc-devel libxml2-devel libzstd-devel make nasm ninja-build \
+            libdrm-devel libshaderc-devel libxml2-devel libzstd-devel make mold nasm ninja-build \
             openssh pkgconf rsync sdl2-compat-devel spirv-headers-devel spirv-tools texinfo \
             vulkan-headers vulkan-loader-devel
       - name: Set env
@@ -730,25 +730,25 @@ jobs:
 
           cmake "${CMAKE_ARGS[@]}"
           ninja -C build install
-      - name: Checkout mold
-        if: ${{ matrix.compiler == 'gcc-snapshot' }}
-        uses: actions/checkout@v7
-        with:
-          repository: rui314/mold
-          path: mold
-          submodules: true
-      - name: Build mold
-        if: ${{ matrix.compiler == 'gcc-snapshot' }}
-        working-directory: mold
-        run: |
-          # arm_neon.h breaks when included inside xxhash.h's extern "C" block
-          # pre-include it outside the block
-          sed -i '1i #ifdef __ARM_NEON\n#include <arm_neon.h>\n#endif' third-party/xxhash/xxhash.h
-          cmake -GNinja -Bbuild \
-            -DCMAKE_BUILD_TYPE=RelWithDebInfo \
-            -DMOLD_USE_MIMALLOC=OFF \
-            -DBUILD_TESTING=OFF
-          ninja -C build install
+      # - name: Checkout mold
+      #   if: ${{ matrix.compiler == 'gcc-snapshot' }}
+      #   uses: actions/checkout@v7
+      #   with:
+      #     repository: rui314/mold
+      #     path: mold
+      #     submodules: true
+      # - name: Build mold
+      #   if: ${{ matrix.compiler == 'gcc-snapshot' }}
+      #   working-directory: mold
+      #   run: |
+      #     # arm_neon.h breaks when included inside xxhash.h's extern "C" block
+      #     # pre-include it outside the block
+      #     sed -i '1i #ifdef __ARM_NEON\n#include <arm_neon.h>\n#endif' third-party/xxhash/xxhash.h
+      #     cmake -GNinja -Bbuild \
+      #       -DCMAKE_BUILD_TYPE=RelWithDebInfo \
+      #       -DMOLD_USE_MIMALLOC=OFF \
+      #       -DBUILD_TESTING=OFF
+      #     ninja -C build install
       - name: Download Intel SDE
         if: ${{ matrix.sde }}
         working-directory: ${{ runner.temp }}
