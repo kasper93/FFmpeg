@@ -665,7 +665,7 @@ jobs:
       - name: Install clang
         if: ${{ matrix.compiler == 'clang' }}
         run: |
-          dnf -y copr enable @fedora-llvm-team/llvm-snapshots || true
+          # dnf -y copr enable @fedora-llvm-team/llvm-snapshots || true
           dnf -y install --best clang lld llvm compiler-rt
       - name: Upgrade packages
         run: |
