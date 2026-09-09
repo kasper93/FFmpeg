@@ -101,9 +101,13 @@ jobs:
             os: windows-11-vs2026-arm
           - arch: arm64
             os: windows-2025-vs2026
-          # Enable once aarch64-pc-windows-msvc/clang_rt.asan.lib is available on the runner
+          # The bundled LLVM has no ASan runtime for aarch64.
           - arch: arm64
             asan: true
+            compiler: clang-msvc
+          - arch: arm64
+            asan: true
+            compiler: clang-cl-msvc
           - shared: true
             asan: true
           - debug: true
@@ -172,7 +176,6 @@ jobs:
           - c11atomics: true
             compiler: icx-win
           - c11atomics: true
-            arch: amd64
             asan: false
           - c11atomics: true
             shared: true

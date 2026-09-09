@@ -13,5 +13,5 @@ cxx=clang-cl
 extra_cflags="-fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-sanitize=function -MD"
 extra_cxxflags="-fsanitize=address,undefined -fno-sanitize-recover=undefined -fno-sanitize=function -MD"
 # clang-cl supports autolinking only for -fsanitize=undefined, not for address, unlike cl.exe
-extra_ldflags="clang_rt.asan_dynamic-x86_64.lib clang_rt.asan_dynamic_runtime_thunk-x86_64.lib"
+extra_ldflags="clang_rt.asan_dynamic-aarch64.lib clang_rt.asan_dynamic_runtime_thunk-aarch64.lib"
 extra_conf="--toolchain=msvc --target-os=win64 --disable-asm --enable-w32threads --enable-version3 --enable-nonfree --enable-vulkan"
