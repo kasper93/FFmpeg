@@ -165,9 +165,6 @@ jobs:
             compiler: clang-cl-msvc
           - asm: true
             debug: false
-          # https://developercommunity.visualstudio.com/t/11045301
-          - asan: true
-            compiler: clang-msvc
           - c11atomics: true
             compiler: clang-msvc
           - c11atomics: true
@@ -351,6 +348,17 @@ jobs:
 
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.host_arch || matrix.arch }}"
+
+          if ("${{ matrix.compiler }}" -eq "clang-msvc" -and "${{ matrix.asan }}" -eq "true") {
+              # VS ships two different clang_rt.asan_dynamic-<arch>.dll, LLVM's and
+              # MSVC's, and only the MSVC one is on PATH. Binaries built by the
+              # bundled clang are not compatible with MSVC's runtime, so put LLVM's
+              # runtime first. https://developercommunity.visualstudio.com/t/11045301
+              $suffix = "${{ matrix.arch == 'amd64' && 'x86_64' || matrix.arch == 'arm64' && 'aarch64' || 'i386' }}"
+              $dll = Get-ChildItem "$(clang -print-resource-dir)\lib" -Recurse -Filter "clang_rt.asan_dynamic-$suffix.dll" -ErrorAction SilentlyContinue | Select-Object -First 1
+              if (-not $dll) { throw "no ASan runtime for $suffix" }
+              $env:PATH = "$($dll.DirectoryName);$env:PATH"
+          }
 
           cd .github/fate/src
           msys2 -ec 'PKG_CONFIG_PATH=`cygpath -a ''${{ runner.temp }}\install\lib\pkgconfig''` PATH="$PATH:$PWD/../install/bin" ./tests/fate.sh ../${{ env.CONF }}'
