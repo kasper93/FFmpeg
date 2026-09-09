@@ -1,5 +1,5 @@
 slot=arm64-msvc-c11atomics
-comment="VS2022 MSVC ARM64 (C11 atomics)"
+comment="VS2026 MSVC ARM64 (C11 atomics)"
 fate_recv="ssh -T -o IdentitiesOnly=yes fate@fate.ffmpeg.org"
 fate_targets="fate fate-build"
 repo="file://$PWD"

@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2025-vs2026, windows-11-arm]
+        os: [windows-2025-vs2026, windows-11-vs2026-arm]
         arch: [amd64, arm64, x86_32]
         compiler: [clang-msvc, clang-cl-msvc, msvc, icx-win]
         asan: [false, true]
@@ -98,7 +98,7 @@ jobs:
             cet: false
         exclude:
           - arch: amd64
-            os: windows-11-arm
+            os: windows-11-vs2026-arm
           - arch: arm64
             os: windows-2025-vs2026
           # Enable once aarch64-pc-windows-msvc/clang_rt.asan.lib is available on the runner
@@ -405,7 +405,7 @@ jobs:
             os: windows-2025-vs2026
             arch: amd64
           - sys: "clangarm64"
-            os: "windows-11-arm"
+            os: "windows-11-vs2026-arm"
             arch: arm64
     defaults:
       run:
