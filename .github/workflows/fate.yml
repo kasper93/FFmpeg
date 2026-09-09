@@ -189,7 +189,6 @@ jobs:
             asm: true
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.c11atomics && '-c11atomics' || '' }}
-      VS: "C:\\Program Files\\Microsoft Visual Studio\\${{ matrix.os == 'windows-2025-vs2026' && '18' || '2022' }}\\Enterprise"
       MSYSTEM: MSYS
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
@@ -256,6 +255,14 @@ jobs:
           repository: madler/zlib
           ref: v1.3.2
           path: zlib
+      - name: Find Visual Studio
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vsPath) { throw "Could not find a Visual Studio installation" }
+          "VS=$vsPath"
+          "VS=$vsPath" >> $env:GITHUB_ENV
       - name: Build zlib
         shell: pwsh
         working-directory: zlib
@@ -405,7 +412,6 @@ jobs:
         shell: msys2 {0}
     env:
       CONF: msys2-${{ matrix.sys }}
-      VS: "C:\\Program Files\\Microsoft Visual Studio\\${{ matrix.os == 'windows-2025-vs2026' && '18' || '2022' }}\\Enterprise"
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
       PERL_BADLANG: 0
     steps:
@@ -414,6 +420,14 @@ jobs:
         run: |
           git config --global core.autocrlf false
           git config --global core.eol lf
+      - name: Find Visual Studio
+        shell: pwsh
+        run: |
+          $vswhere = "${env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer\vswhere.exe"
+          $vsPath = & $vswhere -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath
+          if (-not $vsPath) { throw "Could not find a Visual Studio installation" }
+          "VS=$vsPath"
+          "VS=$vsPath" >> $env:GITHUB_ENV
       - uses: actions/checkout@v7
       - uses: msys2/setup-msys2@v2
         with:
