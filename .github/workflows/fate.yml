@@ -190,6 +190,7 @@ jobs:
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.asan && '-asan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.debug && '-debug' || '' }}${{ matrix.assert && '-assert' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.c11atomics && '-c11atomics' || '' }}
       MSYSTEM: MSYS
+      ASAN_OPTIONS: detect_stack_use_after_return=1:strict_string_checks=1:check_initialization_order=1:handle_abort=1:handle_sigill=1:print_cmdline=1
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Print CPU Info
@@ -423,6 +424,7 @@ jobs:
         shell: msys2 {0}
     env:
       CONF: msys2-${{ matrix.sys }}
+      ASAN_OPTIONS: detect_stack_use_after_return=1:strict_string_checks=1:check_initialization_order=1:handle_abort=1:handle_sigill=1:print_cmdline=1
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
       PERL_BADLANG: 0
     steps:
@@ -660,6 +662,7 @@ jobs:
       options: --privileged
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}${{ matrix.std && '-std' || '' }}${{ matrix.asan && '-asan' || '' }}${{ matrix.msan && '-msan' || '' }}${{ matrix.shared && '-shared' || '' }}${{ matrix.cet && '-cet' || '' }}${{ matrix.sde && '-sde' || '' }}${{ matrix.asm && '-asm' || '' }}${{ matrix.ast && '-ast' || '' }}${{ matrix.var_init && format('-{0}', matrix.var_init) || '' }}${{ matrix.short-enums && '-short-enums' || '' }}${{ matrix.extra-warnings && '-extra-warnings' || '' }}${{ matrix.dummy-atomics && '-dummy-atomics' || '' }}
+      ASAN_OPTIONS: detect_stack_use_after_return=1:strict_string_checks=1:check_initialization_order=1:handle_abort=1:handle_sigill=1:print_cmdline=1
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Print CPU Info
@@ -853,6 +856,7 @@ jobs:
       image: chimeralinux/chimera:latest
     env:
       CONF: ${{ matrix.arch }}-${{ matrix.compiler }}
+      ASAN_OPTIONS: detect_stack_use_after_return=1:strict_string_checks=1:check_initialization_order=1:handle_abort=1:handle_sigill=1:print_cmdline=1
       UBSAN_OPTIONS: print_stacktrace=1:halt_on_error=1
     steps:
       - name: Print CPU Info
