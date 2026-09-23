@@ -458,7 +458,6 @@ jobs:
             lame
             libiconv
             libjpeg-turbo
-            libva
             libvorbis
             libwebp
             libxml2
@@ -516,6 +515,7 @@ jobs:
             libsoxr \
             libssh \
             libtheora \
+            libva \
             libvpl \
             libvpx \
             libx264 \
