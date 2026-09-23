@@ -8,7 +8,7 @@ on:
 jobs:
   check:
     name: Check for new commits
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-slim
     outputs:
       has_changes: ${{ github.event_name == 'workflow_dispatch' || steps.check.outputs.has_changes }}
     steps:
@@ -52,7 +52,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [windows-2025-vs2026, windows-11-vs2026-arm]
+        os: [windows-2025, windows-11-arm]
         arch: [amd64, arm64, x86_32]
         compiler: [clang-msvc, clang-cl-msvc, msvc, icx-win]
         asan: [false, true]
@@ -63,7 +63,7 @@ jobs:
         cet: [false, true]
         c11atomics: [false, true]
         include:
-          - os: windows-2025-vs2026
+          - os: windows-2025
             arch: x86_32
             target_arch: x86
             host_arch: amd64
@@ -74,7 +74,7 @@ jobs:
             debug: true
             assert: false
             cet: false
-          - os: windows-2025-vs2026
+          - os: windows-2025
             arch: x86_32
             target_arch: x86
             host_arch: amd64
@@ -85,7 +85,7 @@ jobs:
             debug: true
             assert: false
             cet: false
-          - os: windows-2025-vs2026
+          - os: windows-2025
             arch: x86_32
             target_arch: x86
             host_arch: amd64
@@ -98,9 +98,9 @@ jobs:
             cet: false
         exclude:
           - arch: amd64
-            os: windows-11-vs2026-arm
+            os: windows-11-arm
           - arch: arm64
-            os: windows-2025-vs2026
+            os: windows-2025
           # The bundled LLVM has no ASan runtime for aarch64.
           - arch: arm64
             asan: true
@@ -405,19 +405,19 @@ jobs:
       matrix:
         include:
           - sys: clang64
-            os: windows-2025-vs2026
+            os: windows-2025
             arch: amd64
           - sys: "mingw64"
-            os: windows-2025-vs2026
+            os: windows-2025
             arch: amd64
           - sys: "mingw32"
-            os: windows-2025-vs2026
+            os: windows-2025
             arch: amd64
           - sys: "ucrt64"
-            os: windows-2025-vs2026
+            os: windows-2025
             arch: amd64
           - sys: "clangarm64"
-            os: "windows-11-vs2026-arm"
+            os: "windows-11-arm"
             arch: arm64
     defaults:
       run:
@@ -636,27 +636,27 @@ jobs:
       matrix:
         include:
           # gcc
-          - { os: ubuntu-24.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false, extra-warnings: false }
-          # - { os: ubuntu-24.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: true,  extra-warnings: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false, extra-warnings: false }
+          # - { os: ubuntu-26.04,     arch: amd64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: true,  extra-warnings: false }
+          - { os: ubuntu-26.04-arm, arch: arm64, compiler: gcc-snapshot, compiler_bin: gcc,   asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '', short-enums: false, extra-warnings: false }
           # clang
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
-          # - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: true,  extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: true,  shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false, extra-warnings: false }
-          # - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  ast: true, var_init: '',   short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: true  }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, std: true, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',   short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false, dummy-atomics: true }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false, extra-warnings: false }
-          - { os: ubuntu-24.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
+          # - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: true,  extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: true,  shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false, extra-warnings: false }
+          # - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: true,  asm: true,  ast: true, var_init: '',   short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: true  }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, std: true, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',   short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04,     arch: amd64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false, dummy-atomics: true }
+          - { os: ubuntu-26.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: false, var_init: '',              short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: true,  msan: false, shared: false, cet: false, sde: false, asm: true,  var_init: '',              short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'uninitialized', short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'zero',          short-enums: false, extra-warnings: false }
+          - { os: ubuntu-26.04-arm, arch: arm64, compiler: clang, compiler_bin: clang, asan: false, msan: false, shared: false, cet: false, sde: false, asm: false, var_init: 'pattern',       short-enums: false, extra-warnings: false }
     container:
       image: fedora:rawhide
       options: --privileged
@@ -842,14 +842,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-24.04, ubuntu-24.04-arm]
+        os: [ubuntu-26.04, ubuntu-26.04-arm]
         arch: [amd64, arm64]
         compiler: [clang]
         exclude:
           - arch: amd64
-            os: ubuntu-24.04-arm
+            os: ubuntu-26.04-arm
           - arch: arm64
-            os: ubuntu-24.04
+            os: ubuntu-26.04
           # GHA doesn't support Musl on ARM64 runners with JS actions
           - arch: arm64
     container:
