@@ -391,7 +391,7 @@ jobs:
         run: |
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.host_arch || matrix.arch }}"
-          dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
+          dumpbin /headers /dependents /relocations .github/fate/install/bin/ffprobe.exe
 
   msys2:
     needs: check
@@ -622,7 +622,7 @@ jobs:
         run: |
           Import-Module "$env:VS\Common7\Tools\Microsoft.VisualStudio.DevShell.dll"
           Enter-VsDevShell -VsInstallPath $env:VS -SkipAutomaticLocation -DevCmdArguments "-arch=${{ matrix.target_arch || matrix.arch }} -host_arch=${{ matrix.target_arch || matrix.arch }}"
-          dumpbin /headers /dependents /relocations .github/fate/install/bin/ffmpeg.exe
+          dumpbin /headers /dependents /relocations .github/fate/install/bin/ffprobe.exe
 
   fedora:
     needs: check
@@ -828,9 +828,9 @@ jobs:
           cat .github/fate/test.log
       - name: readelf
         run: |
-          readelf -S .github/fate/install/bin/ffmpeg
-          readelf -n .github/fate/install/bin/ffmpeg
-          readelf -r .github/fate/install/bin/ffmpeg
+          readelf -S .github/fate/install/bin/ffprobe
+          readelf -n .github/fate/install/bin/ffprobe
+          readelf -r .github/fate/install/bin/ffprobe
 
   chimera:
     needs: check
@@ -954,6 +954,6 @@ jobs:
           cat .github/fate/test.log
       - name: readelf
         run: |
-          readelf -S .github/fate/install/bin/ffmpeg
-          readelf -n .github/fate/install/bin/ffmpeg
-          readelf -r .github/fate/install/bin/ffmpeg
+          readelf -S .github/fate/install/bin/ffprobe
+          readelf -n .github/fate/install/bin/ffprobe
+          readelf -r .github/fate/install/bin/ffprobe
