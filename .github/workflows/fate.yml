@@ -473,7 +473,7 @@ jobs:
         run: |
           cat /proc/cpuinfo
       - name: Install dependencies
-        if: ${{ matrix.sys != 'mingw32' }}
+        if: ${{ matrix.sys != 'mingw32' && matrix.sys != 'mingw64' }}
         run: |
           pacboy --noconfirm -S \
             amf-headers \
